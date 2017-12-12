@@ -1,1 +1,1 @@
-# Here i'l post all interesting ars that i make with echo bot in discord
+# Here i'll post all interesting ars that i make with echo bot in discord
