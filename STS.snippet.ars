@@ -1,4 +1,4 @@
-/*Ticket System*/
+/*Ticket System*/ (not finished)
 .infoticket={init}
 Sigue esta guÃ­a para abrir un nuevo ticket de soporte.
 Lo primero de todo, debes escribir `.openticket Tipo de Ayuda que necesitas (Hardware/Software) - (Relacionado con: "juegos"/"software en general" - DescripciÃ³n detallada de tu problema`
