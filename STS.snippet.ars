@@ -1,0 +1,102 @@
+/*Ticket System*/
+.infoticket={init}
+Sigue esta guÃ­a para abrir un nuevo ticket de soporte.
+Lo primero de todo, debes escribir `.openticket Tipo de Ayuda que necesitas (Hardware/Software) - (Relacionado con: "juegos"/"software en general" - DescripciÃ³n detallada de tu problema`
+[#CONTINUE#]
+
+
+&.openticket {params}={init}
+use | tickets
+{if(ischannel):
+{split: - }
+{m?temp:part0} := {/p0}
+{m?temp:part1} := {/p1}
+{m?temp:part2} := {/p2}
+{m?tempuser:user} := {/rawid}
+{embed:
+    {type:rich}
+    {Title:ConfirmaciÃ³n del TICKET}
+    {author|name: Ticket abierto por: <@{r?tempuser:user}>}
+    {author|icon: {usericon}}
+    {field[0]|name:Tipo de ayuda:}
+    {field[0]|value:{/p0}}
+    {field[1]|name:Relacionado con:}
+    {field[1]|value:{/p1}}
+    {field[2]|name:DescripciÃ³n:}
+    {field[2]|value:{/p2}}
+}
+```ConfirmaciÃ³n del ticket.```{clean}
+Escribe `.ticket Confirmar` para confirmar operaciÃ³n o `.ticket Rechazar" para cancelar la operaciÃ³n.
+} (else) {Solo puedes ejecutar ese comando en el canal #ticket {del}{delme:30s}}
+
+
+[#CONTINUE#]
+&.ticket {params}={init}
+Params.Confirmar?:{ars:#001}
+Params.Rechazar?:{ars:#00A}Tu ticket ha sido cancelado exitosamente.{del:10s}{delme:20s}
+Response.nil?:No has escrito correctamente
+
+
+[#CONTINUE#]
+#00A={init}
+{arslock}
+{x?temp}
+
+
+[#CONTINUE#]
+#001={init}
+{arslock}
+{m?ticketid:randnumber} := {rand:1,9999}
+DB:tempuser.user?:{ars:#002}Tu ticket ha sido recogido exitosamente. Dentro de poco alguno de nuestros profesionales acceptarÃ¡ el ticket. ID TICKET `#{rand:1,9999}`
+Response.nil?:{del}No hay tickets abiertos actualmente
+
+
+[#CONTINUE#]
+#002={init}
+{arslock}
+{redirect:388139571809878026}
+{embed:
+    {type:rich}
+    {Title:ConfirmaciÃ³n del TICKET}
+    {author|name: Ticket abierto por: <@{r?temp:user}>}
+    {author|icon: {usericon}}
+    {field[0]|name:Tipo de ayuda:}
+    {field[0]|value:{r?temp:part0}}
+    {field[1]|name:Relacionado con:}
+    {field[1]|value:{r?temp:part1}}
+    {field[2]|name:DescripciÃ³n:}
+    {field[2]|value:{r?temp:part2}}
+    {footer|text:Ticket ID: #{r?ticketid:randnumber}}
+}
+
+
+[#CONTINUE#]
+&.Aceptar_Ticket {params}={init}
+{m?tempuser:aceptuser} := {/user}
+Params.{r?ticketid:randnumber}?:{ars:#003}{pm:{r?tempuser:user}}{clean}Tu ticket con id: `#{r?ticketid:randnumber}` ha sido aceptado por {self}
+Params.nil?:No hay tickets abiertos actualmente.
+
+
+[#CONTINUE#]
+#003={init}
+{arslock}
+{redirect:389715971436314624}
+{ars:#004}
+{embed:
+    {type:rich}
+    {Title:Detalles Sobre el ticket}
+    {author|name: Ticket abierto por: <@{r?temp:user}>}
+    {author|icon: {usericon}}
+    {field[0]|name:Tipo de ayuda:}
+    {field[0]|value:{r?temp:part0}}
+    {field[1]|name:Relacionado con:}
+    {field[1]|value:{r?temp:part1}}
+    {field[2]|name:DescripciÃ³n:}
+    {field[2]|value:{r?temp:part2}}
+    {footer|text:Ticket ID: #{r?ticketid:randnumber}}
+}
+
+
+[#CONTINUE#]
+#004={init}{arslock}
+{role:supportroom}{target:{r?tempuser:user}}
