@@ -1,7 +1,7 @@
-/*Ticket System*/ (not finished)
+/*Ticket System*/
 .infoticket={init}
-Sigue esta guÃ­a para abrir un nuevo ticket de soporte.
-Lo primero de todo, debes escribir `.openticket Tipo de Ayuda que necesitas (Hardware/Software) - (Relacionado con: "juegos"/"software en general" - DescripciÃ³n detallada de tu problema`
+Sigue esta guía para abrir un nuevo ticket de soporte.
+Lo primero de todo, debes escribir `.openticket Tipo de Ayuda que necesitas (Hardware/Software) - (Relacionado con: "juegos"/"software en general" - Descripción detallada de tu problema`
 [#CONTINUE#]
 
 
@@ -15,18 +15,18 @@ use | tickets
 {m?tempuser:user} := {/rawid}
 {embed:
     {type:rich}
-    {Title:ConfirmaciÃ³n del TICKET}
+    {Title:Confirmación del TICKET}
     {author|name: Ticket abierto por: <@{r?tempuser:user}>}
     {author|icon: {usericon}}
     {field[0]|name:Tipo de ayuda:}
     {field[0]|value:{/p0}}
     {field[1]|name:Relacionado con:}
     {field[1]|value:{/p1}}
-    {field[2]|name:DescripciÃ³n:}
+    {field[2]|name:Descripción:}
     {field[2]|value:{/p2}}
 }
-```ConfirmaciÃ³n del ticket.```{clean}
-Escribe `.ticket Confirmar` para confirmar operaciÃ³n o `.ticket Rechazar" para cancelar la operaciÃ³n.
+```Confirmación del ticket.```{clean}
+Escribe `.ticket Confirmar` para confirmar operación o `.ticket Rechazar" para cancelar la operación.
 } (else) {Solo puedes ejecutar ese comando en el canal #ticket {del}{delme:30s}}
 
 
@@ -38,16 +38,10 @@ Response.nil?:No has escrito correctamente
 
 
 [#CONTINUE#]
-#00A={init}
-{arslock}
-{x?temp}
-
-
-[#CONTINUE#]
 #001={init}
 {arslock}
 {m?ticketid:randnumber} := {rand:1,9999}
-DB:tempuser.user?:{ars:#002}Tu ticket ha sido recogido exitosamente. Dentro de poco alguno de nuestros profesionales acceptarÃ¡ el ticket. ID TICKET `#{rand:1,9999}`
+DB:tempuser.user?:{ars:#002}Tu ticket ha sido recogido exitosamente. Dentro de poco alguno de nuestros profesionales acceptará el ticket. ID TICKET `#{rand:1,9999}`
 Response.nil?:{del}No hay tickets abiertos actualmente
 
 
@@ -57,14 +51,14 @@ Response.nil?:{del}No hay tickets abiertos actualmente
 {redirect:388139571809878026}
 {embed:
     {type:rich}
-    {Title:ConfirmaciÃ³n del TICKET}
-    {author|name: Ticket abierto por: <@{r?temp:user}>}
+    {Title:Confirmación del TICKET}
+    {author|name: Ticket abierto por: <@{r?tempuser:user}>}
     {author|icon: {usericon}}
     {field[0]|name:Tipo de ayuda:}
     {field[0]|value:{r?temp:part0}}
     {field[1]|name:Relacionado con:}
     {field[1]|value:{r?temp:part1}}
-    {field[2]|name:DescripciÃ³n:}
+    {field[2]|name:Descripción:}
     {field[2]|value:{r?temp:part2}}
     {footer|text:Ticket ID: #{r?ticketid:randnumber}}
 }
@@ -85,13 +79,13 @@ Params.nil?:No hay tickets abiertos actualmente.
 {embed:
     {type:rich}
     {Title:Detalles Sobre el ticket}
-    {author|name: Ticket abierto por: <@{r?temp:user}>}
+    {author|name: Ticket abierto por: <@{r?tempuser:user}>}
     {author|icon: {usericon}}
     {field[0]|name:Tipo de ayuda:}
     {field[0]|value:{r?temp:part0}}
     {field[1]|name:Relacionado con:}
     {field[1]|value:{r?temp:part1}}
-    {field[2]|name:DescripciÃ³n:}
+    {field[2]|name:Descripción:}
     {field[2]|value:{r?temp:part2}}
     {footer|text:Ticket ID: #{r?ticketid:randnumber}}
 }
@@ -99,4 +93,35 @@ Params.nil?:No hay tickets abiertos actualmente.
 
 [#CONTINUE#]
 #004={init}{arslock}
-{role:supportroom}{target:{r?tempuser:user}}
+{target:{r?tempuser:user}}{role:supportroom1}
+
+
+[#CONTINUE#]
+&.close_ticket={init}
+use | supportroom1
+{if(ischannel):
+{ars:#005}} (else) {Este comando no está disponible en este canal}
+ 
+ 
+[#CONTINUE#]
+ #005={init}
+DB:tempuser.user?:{ars:#006}
+Response.nil?:No hay tickets abiertos actualmente.{del}{delme:30s}
+
+
+[#CONTINUE#]
+#006={init}
+{target:{r?tempuser:user}}{take:supportroom1}{clear:100}{clear:100}{ars:#00A}{redirect:389715971436314624}```css [TICKET CERRADO]```{delme:5m}
+
+ 
+[#CONTINUE#]
+#00A={init}
+{arslock}{ars:#01A}
+{x?temp}
+
+
+[#CONTINUE#]
+#01A={init}
+{arslock}
+{x?tempuser}
+
