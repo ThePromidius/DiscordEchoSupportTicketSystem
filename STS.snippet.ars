@@ -111,9 +111,14 @@ Response.nil?:No hay tickets abiertos actualmente.{del}{delme:30s}
 
 [#CONTINUE#]
 #006={init}
-{target:{r?tempuser:user}}{take:supportroom1}{clear:100}{clear:100}{ars:#00A}{redirect:389715971436314624}```css [TICKET CERRADO]```{delme:5m}
+{target:{r?tempuser:user}}{take:supportroom1}{clear:100}{clear:100}{ars:#007}
 
- 
+
+[#CONTINUE#]
+#007={init}
+{redirect:389715971436314624}```css [TICKET CERRADO]```{delme:5m}
+
+
 [#CONTINUE#]
 #00A={init}
 {arslock}{ars:#01A}
