@@ -1,9 +1,12 @@
 &.editar {params}={init}
+use | Oficial
+{if(hasrole):
 {split: }
 {m?records:Variableinuti5} := {/p0}
 {m?records:Variableinutil6} := {/p1}
-ParamRegex.((BA|TDB)\s(P|D|C|K|A|O|MD)\s({/p2})\s({/p3})\s{/p4}\s({/p5}))?:{ars:#editar1}
+ParamRegex.((BA|TDM)\s(P|D|C|K|A|O|MD|KDA)\s({/p2})\s({/p3})\s{/p4}\s({/p5}))?:{ars:#editar1}{msg:Record editado correctamente}{redirect:167938091976228864}{/p3} le arrebata el record `{/p1}` a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
 Response.nil?:Error, usa `.editar <BA|TDM> <P|D|C|K|A|O|MD|KDA> <valores>`
+} (else) {{del:5s}No tienes permiso para ejecutar este comando. Escribe ' .comandos`para ver los comandos que puedes ejecutar.}
 [#CONTINUE#]
 #editar1={init}
 {m?records:Nombre--{/p0}-{/p1}} := {/p1}
@@ -16,14 +19,18 @@ Response.nil?:Error, usa `.editar <BA|TDM> <P|D|C|K|A|O|MD|KDA> <valores>`
 [#CONTINUE#]
 
 &.records {params}={init}
+use | spamming_bots
+{if(ischannel):
 {split: }
 {m?records:Variableinutil} := {/p0}
 {m?records:Variableinutil2} := {/p1}
-ParamRegex.((BA|TDB)\s(P|D|C|K|A|O|MD))?:{ars:#records}
+ParamRegex.((BA|TDM)\s(P|D|C|K|A|O|MD))?:{ars:#records}
 Params.BA?:{ars:#listadorecords}
+Params.TDM?:{ars:#listadorecordsTDM}
 Response.nil?:Utiliza `.records <BA|TDM> <P|D|C|K|A|O|MD|KDA>` (ten en cuenta mayus)
-
+}
 [#CONTINUE#]
+
 #listadorecords={init}
 {embed:
 {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
@@ -35,13 +42,42 @@ Response.nil?:Utiliza `.records <BA|TDM> <P|D|C|K|A|O|MD|KDA>` (ten en cuenta ma
 {field[4]|name:Asistencias}{field[4]|value:{r?records:Valor---BA-A}  {r?records:Miembro-BA-A}}
 {field[5]|name:Objetivos}{field[5]|value:{r?records:Valor---BA-O}  {r?records:Miembro-BA-O}}
 {field[6]|name:KDA}{field[6]|value:{r?records:Valor---BA-KDA}  {r?records:Miembro-BA-KDA}}
-{field[7]|name:Manejo de Daño}{field[7]|value:{r?records:Valor---BA-MD}  {r?records:Miembro-BA-MD}}
-{footer|text:Usa .records <BA> <P|D|C|K|A|O|MD|KDA> para obtener mas info sobre un record específico}
-{footer|icon:{guild|icon}}
+{field[7]|name:Manejo de Daño}{field[7]|value:{r?records:Valor---BA-MD}  {r?records:Miembro-BA-MD}
+
+[Click para ver todos los records](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing)}
+{footer|text:Usa .records <BA> <P|D|C|K|A|O|MD|KDA> para obtener mas info sobre un record específico
+Actualizado el: {r?records:ultimamodificacion}}
 }
+
+[#CONTINUE#]
+
+#listadorecordsTDM={init}
+{embed:
+{thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+{title:Records de TDM}
+{field[0]|name:Puntuación}{field[0]|value:{r?records:Valor---TDM-P}  {r?records:Miembro-TDM-P}}
+{field[1]|name:Daño}{field[1]|value:{r?records:Valor---TDM-D}  {r?records:Miembro-TDM-D}}
+{field[2]|name:Curación}{field[2]|value:{r?records:Valor---TDM-C}  {r?records:Miembro-TDM-C}}
+{field[3]|name:Kills}{field[3]|value:{r?records:Valor---TDM-K}  {r?records:Miembro-TDM-K}}
+{field[4]|name:Asistencias}{field[4]|value:{r?records:Valor---TDM-A}  {r?records:Miembro-TDM-A}}
+{field[5]|name:KDA}{field[5]|value:{r?records:Valor---TDM-KDA}  {r?records:Miembro-TDM-KDA}}
+{field[6]|name:Manejo de Daño}{field[6]|value:{r?records:Valor---TDM-MD}  {r?records:Miembro-TDM-MD}
+
+[Click para ver todos los records](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing)}
+{footer|text:Usa .records <TDM> <P|D|C|K|A|O|MD|KDA> para obtener mas info sobre un record específico
+
+Actualizado el: {r?records:ultimamodificacion}}
+}
+
 [#CONTINUE#]
 
 #records={init}{arslock}
+String.{/p0} == BA?:{ars:#recordsBA}
+String.{/p0} == TDM?:{ars:#recordsTDM}
+
+[#CONTINUE#]
+
+#recordsBA={init}{arslock}
 {embed:
 {type:rich}
 String.{/p1} == P?:{title:Record de Puntuación en {/p0}}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
@@ -52,10 +88,23 @@ String.{/p1} == A?:{title:Record de Asistencias en {/p0}}{field[0]|name:Valor}{f
 String.{/p1} == O?:{title:Record de Objetivos en {/p0}}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
 String.{/p1} == KDA?:{title:Record de KDA {/p0}}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
 String.{/p1} == MD?:{title:Record de Manejador de Daño en {/p0}}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
-
 }
+
 [#CONTINUE#]
 
+#recordsTDM={init}{arslock}
+{embed:
+{type:rich}
+String.{/p1} == P?:{title:Record de Puntuación en TDM}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+String.{/p1} == D?:{title:Record de Daño en TDM}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+String.{/p1} == C?:{title:Record de Curacion en TDM}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+String.{/p1} == K?:{title:Record de Kills en TDM}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+String.{/p1} == A?:{title:Record de Asistencias en TDM}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+String.{/p1} == KDA?:{title:Record de KDA TDM}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+String.{/p1} == MD?:{title:Record de Manejador de Daño en TDM}{field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}{field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}{field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}{field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+}
+
+[#CONTINUE#]
 
 &.MD {params}={init}
 {split: }
@@ -68,7 +117,8 @@ String.{/p1} == MD?:{title:Record de Manejador de Daño en {/p0}}{field[0]|name:
 {math:({/p0}+ ({/p2}/2) )/({/p1}+1)}
 
 [#CONTINUE#]
-.compedio={init}
+
+.compendio={init}
 use | Miembro | Recluta | Oficial
 {if(hasrole):
     {embed:
@@ -80,32 +130,23 @@ use | Miembro | Recluta | Oficial
 - [Lista prioridad de compra de items ](https://docs.google.com/document/d/1oamQ-fabRcqm5VJTP5Owc4D-dde2mZq3sLX6l-vDwjM/edit?usp=sharing "Click para ver la prioridad de compra para items")
 - [Lista de Bots aprobados para competitivo](https://docs.google.com/document/d/1j1-nuDYWjEzytRHgYJORdHAEHXubs0QoxNPW5Htk8oA/edit?usp=sharing "Ver los bots recomendados y aprovados para competitivo")
 - [Descripción del modo Comandante](https://docs.google.com/document/d/1aivTRp3sbH1xSFiIvBS4GnXQE6Yw4Iw_FA_Eo5VKAjM/edit?usp=sharing "Aprende a jugar el modo comandante")
-    
-        }
-        {field[1]|name:Información sobre Robocraft Spain}
-        {field[1]|value:
+}{field[1]|name:Información sobre Robocraft Spain}
+{field[1]|value:
 - [Récords del clan](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing "Click para ver la hoja de calculo con los records")
 - [Robocraft Spain en Youtube](https://www.youtube.com/channel/UCLyWO-eg7dQ5z3qSH3BV__Q "Click para ir a youtube")
 - [(TEAM) Titularidad TEAM](https://docs.google.com/spreadsheets/d/1uQFaPfvovqJjfb_Id2_7Cqa3HIOGpdgUC5Ukn1jS1Ck/edit?usp=sharing "Click para ver")
 - [Formulario para optar al rol TEAM](https://docs.google.com/forms/d/e/1FAIpQLSdPm9FaEFo5qSksxZpLvkEtHM4NqJiHXPPLKl-rnx8DvoUx3g/viewform "Click para ver el formulario")
 - [Normativa Externa](https://docs.google.com/document/d/14I3Bi4eU8P46IePwTg0ZIE59xfq6bDHn-qUkU7ZfbKU/edit "Click para ver la normativa externa")
 - [Normativa Interna](https://docs.google.com/document/d/1-9cSs0uD8zK411G0tIRLXZpF9EPW4XVUAZYwuD-fFWI/edit "Click para ver la normativa interna")    
-- []( "")
-- []( "")
-- []( "")
-- []( "")
-
-        }
-    
-    }
+- [Doctrinas de combate](https://docs.google.com/document/d/1Q6gOY6uPJ6Co8uP0NSfGByFEV53U3Zw0bVqly6fzIgQ/edit)}}
 } (else) {No tienes acceso a ese comando. Contacta con un Oficial}
 
 [#CONTINUE#]
 
 .comandos={init}
-Role.Oficial?:{ars:ayudaoficial}
-Role.Miembro?:{ars:ayudamiembrorecluta}
-Role.Recluta?:{ars:ayudamiembrorecluta}
+Role.Oficial?:{ars:#ayudaoficial}
+Role.Miembro?:{ars:#ayudamiembrorecluta}
+Role.Recluta?:{ars:#ayudamiembrorecluta}
 Response.nil?:Error
 
 [#CONTINUE#]
@@ -130,22 +171,22 @@ Response.nil?:Error
         O: Objetivos
         MD: Manejador de Daño
         KDA: KDA}
-    {field[3]|name:Calcular KDA)}
+    {field[3]|name:Calcular KDA}
         {field[3]|value:.KDA <Kills> <Muertes> <Asistencias>}
-    {field[3]|name:Calcular KDA)}
+    {field[4]|name:Calcular Manejo de Daño}
         {field[4]|value:.MD  <Daño> <Curación>}
-    {field[3]|name:Ver el compedio}
-        {field[4]|value:.compedio}
+    {field[5]|name:Ver el compendio}
+        {field[5]|value:.compendio}
     {footer|text:Comandos para Oficiales}
 
     }
 [#CONTINUE#]
-#ayudamiembrorecluta
+
+#ayudamiembrorecluta={init}
 {embed:
         {title:Lista de comandos}
         {field[0]|name:Ver records (general)}
             {field[0]|value:.records <BA|TDM>}
-
         {field[1]|name:Ver records (específico)}
             {field[1]|value:
             .records <BA|TDM> <P|D|C|K|A|O|MD|KDA>
@@ -159,11 +200,10 @@ Response.nil?:Error
             KDA: KDA}
         {field[2]|name:Calcular KDA}
             {field[2]|value:.KDA <Kills> <Muertes> <Asistencias>}
-        {field[3]|name:Calcular KDA}
+        {field[3]|name:Calcular Manejo de Daño}
             {field[3]|value:.MD  <Daño> <Curación>}
-        {field[4]|name:Ver el compedio}
-            {field[4]|value:.compedio}
+        {field[4]|name:Ver el compendio}
+            {field[4]|value:.compendio}
         {footer|text:Comandos para Miembros}
     }
-
-[#CONTINUE#]
+}
