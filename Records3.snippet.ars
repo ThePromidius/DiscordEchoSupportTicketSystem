@@ -8,7 +8,7 @@ ParamRegex.((BA|TDM)\s(P|D|C|K|A|O|MD|KDA)\s({/p2})\s({/p3})\s{/p4}\s({/p5}))?:{
 Response.nil?:Error, usa `.editar <BA|TDM> <P|D|C|K|A|O|MD|KDA> <valores>`
 } (else) {{del:5s}No tienes permiso para ejecutar este comando. Escribe ' .comandos`para ver los comandos que puedes ejecutar.}
 [#CONTINUE#]
-#editar1={init}
+#editar1={init}{arslock}
 {redirect:407307185664557076}
 String.{/p1} == P?:{user} con `{/p2}` puntos le arrebata el record de **puntuación** a {r?records:Miembro-{/p0}-{/p1}} con `{r?records:Valor---{/p0}-{/p1}}` en {/p0} 
 String.{/p1} == D?:{user} con `{/p2}` de daño le arrebata el record de **Daño** a {r?records:Miembro-{/p0}-{/p1}} con `{r?records:Valor---{/p0}-{/p1}}` en {/p0} 
@@ -19,7 +19,7 @@ String.{/p1} == O?:{user} con `{/p2}` objetivos le arrebata el record de **Objet
 String.{/p1} == MD?:{user} con `{/p2}` puntos le arrebata el record de manejador de **Daño** a {r?records:Miembro-{/p0}-{/p1}} con `{r?records:Valor---{/p0}-{/p1}}` en {/p0} 
 String.{/p1} == KDA?:{user} con `{/p2}` puntos le arrebata el record de **KDA** a {r?records:Miembro-{/p0}-{/p1}} con `{r?records:Valor---{/p0}-{/p1}}` en {/p0} 
 [#CONTINUE#]
-#editar2={init}
+#editar2={init}{arslock}
 {m?records:Nombre--{/p0}-{/p1}} := {/p1}
 {m?records:Valor---{/p0}-{/p1}} := {/p2}
 {m?records:Miembro-{/p0}-{/p1}} := {/p3}
@@ -30,7 +30,7 @@ String.{/p1} == KDA?:{user} con `{/p2}` puntos le arrebata el record de **KDA** 
 [#CONTINUE#]
 
 &.records {params}={init}
-use | spamming_bots
+use | spamming_bots | echo-test
 {if(ischannel):
 {split: }
 {m?records:Variableinutil} := {/p0}
@@ -42,7 +42,7 @@ Response.nil?:Utiliza `.records <BA|TDM> <P|D|C|K|A|O|MD|KDA>` (ten en cuenta ma
 }
 [#CONTINUE#]
 
-#listadorecords={init}
+#listadorecords={init}{arslock}
 {embed:
 {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
 {title:Records de Battle Arena / Liga}
@@ -62,7 +62,7 @@ Actualizado el: {r?records:ultimamodificacion}}
 
 [#CONTINUE#]
 
-#listadorecordsTDM={init}
+#listadorecordsTDM={init}{arslock}
 {embed:
 {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
 {title:Records de TDM}
@@ -130,12 +130,12 @@ String.{/p1} == MD?:{title:Record de Manejador de Daño en TDM}{field[0]|name:Va
 [#CONTINUE#]
 
 .compendio={init}
-Role.Oficial?:{ars:#compendiooficiales} funciona compedio oficiales link
+Role.Oficial?:{ars:#compendiooficiales}
 Role.Miembro?:{ars:#compendio}
 Role.Recluta?:No tienes permiso para acceder a ese comando. Contacta con algún oficial.
 Response.nil?:No tienes permiso para acceder a ese comando. Contacta con algún oficial.
 [#CONTINUE#]
-#compendio={init}
+#compendio={init}{arslock}
 
     {embed:
         {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
@@ -155,11 +155,12 @@ Response.nil?:No tienes permiso para acceder a ese comando. Contacta con algún 
 - [Normativa Externa](https://docs.google.com/document/d/14I3Bi4eU8P46IePwTg0ZIE59xfq6bDHn-qUkU7ZfbKU/edit "Click para ver la normativa externa")
 - [Normativa Interna](https://docs.google.com/document/d/1-9cSs0uD8zK411G0tIRLXZpF9EPW4XVUAZYwuD-fFWI/edit "Click para ver la normativa interna")    
 - [Doctrinas de combate](https://docs.google.com/document/d/1Q6gOY6uPJ6Co8uP0NSfGByFEV53U3Zw0bVqly6fzIgQ/edit)}}
+
 [#CONTINUE#]
-#compendiooficiales={init}
-use | spamming_bots
-{if(hasrole):
-    {ars:#compendiooficiales2}funciona compendiooficiales
+
+#compendiooficiales={init}{arslock}
+use | mesa_redonda | echo-test
+{if(ischannel):
     {embed:
         {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
         {title:Lista de enlaces}
@@ -176,27 +177,22 @@ use | spamming_bots
 - [Excel con solicitudes de candidatura](https://docs.google.com/spreadsheets/d/17S8oTYGs-bJEuUhRMt3OzK1hwzbmuJJxa7H_benS9tw "Click para ver las solicitudes")
 - [Enlace al formulario de solicitudes de candidatura](https://docs.google.com/forms/d/1NVVDHaGq0_sA9W1KcHtC2gGyY-N6zIh8nwpJkkrZvn8 "Click para ver el formulario de solicitudes de candidatura")
         }
-    }
-} (else)
-[#CONTINUE#]
-
-#compendiooficiales2={init}funciona compendiooficiales2
-{embed: 
-        {field[0]|name:Compendio Miembros}
-        {field[0]|value:
+        {field[3]|name:Compendio Miembros}
+        {field[3]|value:
 - [Editar Compendio Miembros](https://docs.google.com/document/d/1qXhvHkJ19CG_tI5WiXJxjGp7yNUqbrRAlybjFwLy6tE "Click para editar el compendio de miembros"
 - [Hoja de calculo con datos del juego](http://robocraftgame.com/forums/topic/updated-robocraft-spreadsheet/ "Click para ir a la hoja de calculo con datos del juego") 
 - [Lista prioridad de compra de items ](https://docs.google.com/document/d/1oamQ-fabRcqm5VJTP5Owc4D-dde2mZq3sLX6l-vDwjM/edit?usp=sharing "Click para ver la prioridad de compra para items")
 - [Lista de Bots aprobados para competitivo](https://docs.google.com/document/d/1j1-nuDYWjEzytRHgYJORdHAEHXubs0QoxNPW5Htk8oA/edit?usp=sharing "Ver los bots recomendados y aprovados para competitivo")
 - [Descripción del modo Comandante](https://docs.google.com/document/d/1aivTRp3sbH1xSFiIvBS4GnXQE6Yw4Iw_FA_Eo5VKAjM/edit?usp=sharing "Aprende a jugar el modo comandante")
         }
-        {field[1]|name:Información sobre el clan Robocraft Spain}
-        {field[1]|value:
+        {field[4]|name:Información sobre el clan Robocraft Spain}
+        {field[4]|value:
 - [Récords del clan](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing "Click para ver la hoja de calculo con los records")
 - [Robocraft Spain en Youtube](https://www.youtube.com/channel/UCLyWO-eg7dQ5z3qSH3BV__Q "Click para ir a youtube")
 - [(TEAM) Titularidad TEAM](https://docs.google.com/spreadsheets/d/1uQFaPfvovqJjfb_Id2_7Cqa3HIOGpdgUC5Ukn1jS1Ck/edit?usp=sharing "Click para ver")
 - [Formulario para optar al rol TEAM](https://docs.google.com/forms/d/e/1FAIpQLSdPm9FaEFo5qSksxZpLvkEtHM4NqJiHXPPLKl-rnx8DvoUx3g/viewform "Click para ver el formulario")
 - [Doctrinas de combate](https://docs.google.com/document/d/1Q6gOY6uPJ6Co8uP0NSfGByFEV53U3Zw0bVqly6fzIgQ/edit)
+        }
     }
 }
  (else) {No puedes usar este comando aqui. Usalo en #mesaredonda}
@@ -212,7 +208,7 @@ Response.nil?:Error
 
 [#CONTINUE#]
 
-#ayudaoficial={init}
+#ayudaoficial={init}{arslock}
 {embed:
     {title:Lista de comandos}
     {field[0]|name:Editar record}
@@ -245,7 +241,7 @@ Response.nil?:Error
     }
 [#CONTINUE#]
 
-#ayudamiembrorecluta={init}
+#ayudamiembrorecluta={init}{arslock}
 {embed:
         {title:Lista de comandos}
         {field[0]|name:Ver records (general)}
@@ -267,8 +263,7 @@ Response.nil?:Error
             {field[3]|value:.MD  <Daño> <Curación>}
         {field[4]|name:Ver el compendio}
             {field[4]|value:.compendio}
-        {field[5]|name:Ver el compendio}
-            {field[5]|value:!roll <número> <nada(recomedado)>}
-        {footer|text:Comandos para Miembros}
+        
+            
     }
 }
