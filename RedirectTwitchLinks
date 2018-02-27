@@ -1,0 +1,18 @@
+[CONFIG]
+    RedirectMessage=El link ha sido redireccionado a el canal <#417821669042814981>
+    EmbedTitleRedirected=Nuevo Clip!
+    RedirectToChannel=406204577138868234
+    SharedBy=Clip compartido por {self}
+[/CONFIG]
+
+&{:}(?i)(clips).(twitch).(tv).*={init}{del:20s}{delme:30s}
+    $RedirectMessage
+    {ars:#Clip2}
+[#CONTINUE#]
+
+#Clip2={init}{arslock}
+    {redirect:$RedirectToChannel}
+$EmbedTitleRedirected
+$SharedBy
+{content}
+[#CONTINUE#]
