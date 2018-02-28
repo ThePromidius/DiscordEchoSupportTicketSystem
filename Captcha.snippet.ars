@@ -6,7 +6,7 @@
 
 [CONFIG]
 //1. ENABLE FEAUTURES
-//Message once use is verified. For example a welcome message on general channel| Write "True" to enable or "False" to disable
+//Message once user is verified. For example a welcome message on general channel| Write "True" to enable or "False" to disable
 EnableWelcomeMessage:True
 
 //2. CHANGE CONFIG
