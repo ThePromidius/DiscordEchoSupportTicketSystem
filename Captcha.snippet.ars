@@ -1,0 +1,61 @@
+[INFO]
+##Follow all the instructions to configure your captcha snippet correctly
+##Must say that when writing "True" or "False" is cap sensitive
+[/INFO]
+
+
+[CONFIG]
+//1. ENABLE FEAUTURES
+//Message once use is verified. For example a welcome message on general channel| Write "True" to enable or "False" to disable
+EnableWelcomeMessage:True
+
+//2. CHANGE CONFIG
+//Instruction message its the first message that the user gets and also includes the captcha
+1message=Welcome {/user} you are required to type a captcha in the next 3 minutes.In our general channel please type `.verify {rand:1000,9999}`. If you don't you will be kicked from the server.{m?verify:{rawid}} := {rand:1000,9999}{ars:verSniffer}
+
+//Select the command the user needs to write to get verified. By default is ".captcha" but you can change it
+cmdCaptcha=.captcha
+//Message (pm) to user once captcha is verified. (recommended to explain that they have to wait more or less 3 minutes to get fully verified)
+verifiedCaptcha1=Thank you for verifying with `eCAPTCHA` Please wait while we transfer you from `Unverified` to `Member`. This could take up to 2 minutes.. 
+
+//Message if captcha is not well spelt. (suggest to add that they have to try again)
+incorrectCaptcha=Verification code is incorrect. Please try again.
+
+//Message if the catcha is not completed on time 
+2messageNotCompleted={/user} you failed to type the captcha Goodbye!
+3messageVerified=A Final PM Message goes here (Usually a website or information about your server) 
+
+//Message once use is verified. For example a welcome message on general channel
+enableWelcomeMessage:True
+redirectGreetMessage=ChannelIDHere
+greetMessage=Welcome {user} to {guild|name}
+
+[/CONFIG]
+
+//This creates a database
+[CREATE DB:verify]
+[#CONTINUE#]
+
+//This is the event that will start pm the user with the captcha code and it ill save it into a database. With the {ars:-} will run the next rule
+jnverify={init}
+    {Event:Join}{protect}
+    {m?verify:{rawid}} := {rand:1000,9999}
+    {pm} $1message
+    {ars:#captcha1}
+[#CONTINUE#]
+//This is the checker it has a {sleep:} so the rule will be sleeping and not doing anything till that time end. It will check if the user verified on time.
+#captcha1={init}{arslock}
+    {sleep:3m}
+    String.{r?verify:{rawid}} == {r?verify:{rawid}}?:$2messageNotCompleted {kick}{m?verify:{rawid}} := No Verified
+    Response.nil?:$3messageVerified {take:Unverified}{ars:#captcha2}
+[#CONTINUE#]
+//This is an optional message that can be disabled on the config section. It will redirect a mesage with the text we wrote on the confif
+#captcha2={init}
+[IF $enableWelcomeMessage == TRUE]
+    {redirect:$redirectGreetMessage} $greetMessage
+[/IF]
+[#CONTINUE#]
+//This is the command the user needs to write the command we choosed in the config, space and the code
+&$cmdCaptcha {params}={init}
+    Params.{r?verify:{rawid}} == {r?verify:{rawid}}?:$verifiedCaptcha1 {m?verify:{rawid}} := Verified
+    Response.nil?: $incorrectCaptcha
