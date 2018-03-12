@@ -3,6 +3,8 @@
 ##Must say that when writing "True" or "False" is cap sensitive
 ##Remember that this snippet must be outside a profile, this means it will only work if you upload it to a channel that 
 ##I like adding € as a prefix to a rule if it has an event, # if its arslocked and & when is something the user type
+##remember to setup permissions for Unverified Role so they can't raid.
+
 [/INFO]
 
 
@@ -33,6 +35,9 @@ redirectGreetMessage=channelidhere
 ///{user} will mention the user
 greetMessage=Welcome {user} to {guild|name} server.
 
+//setup what role you want to give when verified
+//It may take some time to give the role and they will stay with no role
+$giverole=Members
 [/CONFIG]
 
 //This creates a database
@@ -51,7 +56,7 @@ greetMessage=Welcome {user} to {guild|name} server.
 #captcha1={init}{arslock}
     {sleep:3m}
 Role.Unverified?:$2messageNotCompleted {kick}
-Response.nil?:$3messageVerified {role:Members}{ars:#captcha2}{d?verify:{rawid}}
+Response.nil?:$3messageVerified {role:$giverole}{ars:#captcha2}{d?verify:{rawid}}
 /*This is the checker it has a {sleep:} so the rule will be sleeping and not doing anything till that time end. It will check if the user verified on time.*/
 [#CONTINUE#]
 
