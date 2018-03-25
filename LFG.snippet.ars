@@ -1,0 +1,39 @@
+.auto {arslock}{ars:#log2}
+{m?log:{rawid}} := Timestamp.Europe/Madrid?{embed:{title:Nuevo Miembro:}{field[0]|name:Nombre{field[0]|value:{self}}{field[1]|name:ID:}{field[1]|value:{rawid}}{field[2]|name:Invitación:}{field[2]|value:{invcode}}{field[3]|name:Fecha:}{field[3]|value:{timestamp:Se unió el 02 / 01 / 2006 03:04}}    }
+
+.auto #log2={init}{arslock}{ars:#log3}
+
+    Timestamp.Europe/Madrid?
+    {redirect:421307234312781824}
+    {embed:
+        {title:Nuevo miembro:}
+            {field[0]|name:Nombre}
+                {field[0]|value:{self}}
+            {field[1]|name:ID:}
+                {field[1]|value:{rawid}}
+            {field[2]|name:Invitación:}
+                {field[2]|value:{invcode}}
+            {field[3]|name:Fecha:}
+                {field[3]|value:{timestamp:Se unió el 02 / 01 / 2006 03:04}
+    }
+
+&mm={init}
+String.{le?groupdb:{.grupo}({r?Usuarios:{rawid}})} == False?:{la?groupdb:{.grupo}({r?Usuarios:{rawid}})}        {embed:{title:Grupo actual:}{desc:{lr?groupdb:{.grupo}(,  )}}}
+Response.nil?:{.grupo++}{ars:#mm}
+
+.votekick {params}={init}
+    String.{le?groupdb:{.grupo}({params})} == True?:{ars:#votekick}
+    Response.nil?:Nombre incorrecto
+[#CONTINUE#]
+
+#votekick={init}{arslock}
+    String.{le?groupdb:kick({params}) == True?:{e?groupdb:kick{params}(+1)}{ars:#votekick2}
+    Response.nil?: {m?groupdb:kick{params}} := 1
+[#CONTINUE#]
+
+#votekick2={init}{arslock}
+    Count.{r?groupdb.kick{params}} = 4?:{ld?groupdb:{.grupo}({params})}
+    Count.{r?groupdb.kick{params}} < 4?:Quedan `{math:{ld?groupdb:{.grupo}({params})}-4}` votos
+
+[#CONTINUE#]
+#mm={init}{arslock}{la?LFG:{.grupo}({r?Usuarios:{rawid}})}
