@@ -304,34 +304,7 @@ Con una bandera española pintada
             {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
             {title:Lista de enlaces}
             {field[0]|name:Compendio Oficiales }
-            {field[0]|value:
-    - [Compendio Oficiales Original](https://docs.google.com/document/d/1399uAYjwocVOLFuvCfHIaPNbMDxdArZWtc03zZks-zg)}
-            {field[1]|name:Normativas}
-            {field[1]|value:
-    - [Normativa Externa](https://docs.google.com/document/d/14I3Bi4eU8P46IePwTg0ZIE59xfq6bDHn-qUkU7ZfbKU/edit "Click para ver la normativa externa")
-    - [Normativa Interna](https://docs.google.com/document/d/1-9cSs0uD8zK411G0tIRLXZpF9EPW4XVUAZYwuD-fFWI/edit "Click para ver la normativa interna")    
-    - [Normativa Oficiales](https://docs.google.com/document/d/1mQSuW-pvMvrcvF0oLSVT4J00_PNsYRItlzm_bs5FL4Q/ "Click para ver la normativa de oficiales")}       
-            {field[2]|name:Candidaturas}
-            {field[2]|value:
-    - [Excel con solicitudes de candidatura](https://docs.google.com/spreadsheets/d/17S8oTYGs-bJEuUhRMt3OzK1hwzbmuJJxa7H_benS9tw "Click para ver las solicitudes")
-    - [Enlace al formulario de solicitudes de candidatura](https://docs.google.com/forms/d/1NVVDHaGq0_sA9W1KcHtC2gGyY-N6zIh8nwpJkkrZvn8 "Click para ver el formulario de solicitudes de candidatura")
-            }
-            {field[3]|name:Compendio Miembros}
-            {field[3]|value:
-    - [Editar Compendio Miembros](https://docs.google.com/document/d/1qXhvHkJ19CG_tI5WiXJxjGp7yNUqbrRAlybjFwLy6tE "Click para editar el compendio de miembros"
-    - [Hoja de calculo con datos del juego](http://robocraftgame.com/forums/topic/updated-robocraft-spreadsheet/ "Click para ir a la hoja de calculo con datos del juego") 
-    - [Lista prioridad de compra de items ](https://docs.google.com/document/d/1oamQ-fabRcqm5VJTP5Owc4D-dde2mZq3sLX6l-vDwjM/edit?usp=sharing "Click para ver la prioridad de compra para items")
-    - [Lista de Bots aprobados para competitivo](https://docs.google.com/document/d/1j1-nuDYWjEzytRHgYJORdHAEHXubs0QoxNPW5Htk8oA/edit?usp=sharing "Ver los bots recomendados y aprovados para competitivo")
-    - [Descripción del modo Comandante](https://docs.google.com/document/d/1aivTRp3sbH1xSFiIvBS4GnXQE6Yw4Iw_FA_Eo5VKAjM/edit?usp=sharing "Aprende a jugar el modo comandante")
-            }
-            {field[4]|name:Información sobre el clan Robocraft Spain}
-            {field[4]|value:
-    - [Récords del clan](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing "Click para ver la hoja de calculo con los records")
-    - [Robocraft Spain en Youtube](https://www.youtube.com/channel/UCLyWO-eg7dQ5z3qSH3BV__Q "Click para ir a youtube")
-    - [(TEAM) Titularidad TEAM](https://docs.google.com/spreadsheets/d/1uQFaPfvovqJjfb_Id2_7Cqa3HIOGpdgUC5Ukn1jS1Ck/edit?usp=sharing "Click para ver")
-    - [Formulario para optar al rol TEAM](https://docs.google.com/forms/d/e/1FAIpQLSdPm9FaEFo5qSksxZpLvkEtHM4NqJiHXPPLKl-rnx8DvoUx3g/viewform "Click para ver el formulario")
-    - [Doctrinas de combate](https://docs.google.com/document/d/1Q6gOY6uPJ6Co8uP0NSfGByFEV53U3Zw0bVqly6fzIgQ/edit)
-            }
+            /*PRIVATE*/
         }
     }
     (else) {No puedes usar este comando aqui. Usalo en #mesaredonda}
