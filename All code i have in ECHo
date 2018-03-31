@@ -1,0 +1,2384 @@
+jnverify={init}
+    {Event:Join}{protect}
+    {m?verify:{rawid}} := {rand:1000,9999}
+    {m?verify:{rawid}verified} := {rand:1000,9999}
+    {pm} Welcome {/user} you are required to type a captcha in the next 3 minutes. 
+    In our general channel please type `.captcha {rand:1000,9999}`. If you don't you will be kicked from the server.{/pm}
+    {ars:#captcha1}
+    /*This is the event that will start pm the user with the captcha code and it ill save it into a database. With the {ars:-} will run the next rule*/
+    [#CONTINUE#]
+
+#captcha1={init}{arslock}
+        {sleep:3m}
+    Role.Unverified?:{/user} you failed to type the captcha Goodbye! 
+    Response.nil?:You succesfully verified if you can't see any channel contact ADM {role:Members}{ars:#captcha2}{d?verify:{rawid}}{d?verify:{rawid}verified}{take:Unverified}
+    /*This is the checker it has a {sleep:} so the rule will be sleeping and not doing anything till that time end. It will check if the user verified on time.*/
+    [#CONTINUE#]
+
+#captcha2={init}{arslock} /*           THIS SHIT NOT WORKING
+    /*This is an optional message that can be disabled on the config section. It will redirect a mesage with the text we wrote on the confif*/
+    */
+    [#CONTINUE#]
+    
+&.captcha {params}={init}{del}
+    String.{params} == {r?verify:{rawid}}?:Thank you for verifying with `eCAPTCHA` Please wait while we transfer you from `Unverified` to `Member`. This could take up to 2 minutes.. {m?verify:{rawid}verified} := verified
+    Response.nil?: Verification code is incorrect. Please try again.
+    /*This is the command the user needs to write the command we choosed in the config, space and the code*/ 
+    
+    [INFO]
+##Follow all the instructions to configure your captcha snippet correctly
+##Must say that when writing "True" or "False" is cap sensitive
+[/INFO]
+
+
+[CONFIG]
+//1. ENABLE FEAUTURES
+//### THIS DONT WORK###
+            //Message once user is verified. For example a welcome message on general channel| Write "True" to enable or "False" to disable
+            //enableWelcomeMessage=True
+
+//2. CHANGE CONFIG
+//Instruction message its the first message that the user gets and also includes the captcha
+1message=Welcome {/user} you are required to type a captcha in the next 3 minutes.
+
+//Select the command the user needs to write to get verified. By default is ".captcha" but you can change it
+cmdCaptcha=.captcha
+//Message (pm) to user once captcha is verified. (recommended to explain that they have to wait more or less 3 minutes to get fully verified)
+verifiedCaptcha1=Thank you for verifying with `eCAPTCHA` Please wait while we transfer you from `Unverified` to `Member`. This could take up to 2 minutes.. 
+
+//Message if captcha is not well spelt. (suggest to add that they have to try again)
+incorrectCaptcha=Verification code is incorrect. Please try again.
+
+//Message if the catcha is not completed on time 
+2messageNotCompleted={/user} you failed to type the captcha Goodbye!
+3messageVerified=You succesfully verified if you can't see any channel contact ADM 
+//###<IGNORE THIS>###
+            //Message once use is verified. For example a welcome message on general channel
+            //redirectGreetMessage=407455999784648704
+            //greetMessage=Welcome {user} to {guild|name}
+//###</IGNORE THIS>###
+[/CONFIG]
+
+//This creates a database
+[CREATE DB:verify]
+[#CONTINUE#]
+
+
+jnverify={init}
+    {Event:Join}{protect}
+    {m?verify:{rawid}} := {rand:1000,9999}{role:Unverified}
+    {pm} $1message 
+    In our general channel please type `$cmdCaptcha {rand:1000,9999}`. If you don't you will be kicked from the server.{/pm}
+    {ars:#captcha1}
+/*This is the event that will start pm the user with the captcha code and it ill save it into a database. With the {ars:-} will run the next rule*/
+[#CONTINUE#]
+#captcha1={init}{arslock}
+    {sleep:3m}
+Role.Unverified?:$2messageNotCompleted {kick}
+Response.nil?:$3messageVerified {role:Members}{ars:#captcha2}{d?verify:{rawid}}
+/*This is the checker it has a {sleep:} so the rule will be sleeping and not doing anything till that time end. It will check if the user verified on time.*/
+[#CONTINUE#]
+
+#captcha2={init}{arslock} /*           THIS SHIT NOT WORKING
+[IF $enableWelcomeMessage == True]
+    {redirect:$redirectGreetMessage} {msg:$greetMessage}
+[/IF]
+/*This is an optional message that can be disabled on the config section. It will redirect a mesage with the text we wrote on the confif*/
+*/[#CONTINUE#]
+
+&$cmdCaptcha {params}={init}{del}
+    String.{params} == {r?verify:{rawid}}?:$verifiedCaptcha1{ars:#cmd2captcha}
+    Response.nil?: $incorrectCaptcha
+/*This is the command the user needs to write the command we choosed in the config, space and the code*/
+[#CONTINUE#]
+
+#cmd2captcha={init}{arslock}{sleep:2m}{take:Unverified}
+#ifmedia={init}{arslock}{ars:HasRep}
+**If you have media (screenshots, links to videos, crash reports, etc...) write `.bugmedia` so a channel where you can upload it is enabled to you.**
+[#CONTINUE#]
+&.bugreport {params}={init}
+{e?ticketid:bugticket(+1)}
+Your bug has been recieved. The developer team will work on it.
+{ars:#bugreport}{del}{delme:20}
+{m?temp:text} := {params}
+[#CONTINUE#]
+.bugmedia={init}{del}
+{redirect:402537163004051467}{role:Mediareport}
+{user} post here the media then write .done
+Media Linked to (ticket ID): {r?ticketid:bugticket}{ars:#instructions}
+[#CONTINUE#]
+.resetticketid={init}{req:ADM}
+{m?ticketid:bugticket} := 0
+[#CONTINUE#]
+#bugreport={init}
+{redirect:392411283636486155}
+{arslock}{ars:#ifmedia}
+{embed:{type:rich}
+    {title: New bug report by {/user}}
+    {color:
+        {randlist:#ff0000,#ff6600}}
+    {field[0]|name:Bug desc:}
+       {field[0]|value:{params}}
+    {field[1]|name:Date:}
+        {field[1]|value:{timestamp}}
+    {field[2]|name:Bug ID:}
+        {field[2]|value:{r?ticketid:bugticket}}
+[#CONTINUE#]
+#instructions={init}{arslock}{sleep:20s}Write   `.bugreport <bug description>`  to post a bug /glitch /crash.
+[#CONTINUE#]
+#ismedia={init}
+String.{r?temp:ismedia} == media?:{ars:#media}{user} Channel <#402537163004051467> has been enabled to you. Upload there your files (screenshots, crash files...) and then when you are done write .done <Bug ID> .  You can find the bug report ID in <#392411283636486155>. It might take up to 5 second to enable you the channel.{role:Mediareport}{delme:2m}
+Response.nil?:{ars:HasRep}
+[#CONTINUE#]
+#media={init}{arslock}{ars:HasRep}{redirect:402537163004051467}
+String.{r?temp:ismedia} == media?:{user} Post here your media, then write .done                                                                                               - Media by {/user} - Bug linked to {r?ticketid:bugticket}
+Response.nil?:{stop}
+[#CONTINUE#]
+&.bugsolved {params}={init}{del}{req:ADM}{redirect:377058360052416523} Bug with ID: {params} has been solved
+[#CONTINUE#]
+HasRep={init}
+{arslock}
+DB:rep.{rawid}?:{ars:addRep}
+Response.nil?:{ars:createUserRepP}
+[#CONTINUE#]
+addRep={init}
+{arslock}
+{e?rep:{rawid}(+5)}
+{user}, you have been awardnered with 5+ rep for your help.{delme:5s}
+[#CONTINUE#]
+createUserRepP={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:addRep}
+[CONFIG]
+//Only allow in specific channel:
+  specificchannel=True
+  //If above = false ignore this
+  //alowed channels eithe the name or the channel id Separated with .|. like chanid | chanid (same with names)
+  allowedChannels:suggestions 
+  //Message if channel is not the one above
+  NotChannel=You can't do that here!{del:5s}
+
+//Change the command you want to use to make suggestions.
+  CMDSuggestion=.suggestion
+//Change the message to confirm that the suffestion has been recieved correctly
+  ConfirmationMessage={/user} Your suggestion has been recieved correctly.
+//Change the channel ID you want to redirect the suggestion embed to
+  RedirectSuggEmbedTo=392410132652359682
+//REACTIONS:
+  EnableReaction=True
+  Reactions=✅ ❎ 
+//Embed 
+  TitleEmbed=Suggestion
+  RandColorEnable=True
+  FooterEnable=True
+  //The next is the footer text. Default is "suggestion made by: {self}"
+  MadeBy:suggestion made by: {self}
+
+[/CONFIG]
+  &$CMDSuggestion {params}={init}
+  [IF $specificchannel == True]
+    use | $allowedChannels
+    {if(ischannel):
+      {del}
+      {msg:$ConfirmationMessage}
+      {delme:10s}
+      {redirect:$RedirectConfirmationTo}
+      [IF $EnableReaction == True]
+        {reactbot:$Reactions}
+      [/IF]
+      {embed:
+        {title:$TitleEmbed}
+        {type:rich}
+        [IF $RandColorEnable == True]
+          {color:
+              {randlist:
+                  #ff0000,#00ff00,#ffffff,#4286f4,
+                  #f45642,#262525,#e2d626,#87e226,
+                  #26e2c0,#2633e2,#8126e2
+                }
+              }
+          [/IF]
+        {desc:
+          {params}
+          }
+        [IF $FooterEnable == True]
+          {footer|text:$MadeBy} 
+          {footer|icon:
+              {usericon}
+          }
+            [/IF]
+      }
+    } (else) {
+      $NotChannel
+    }
+    [/IF]
+  [IF $specificchannel == False]
+  {del}
+    {msg:$ConfirmationMessage}
+    {delme:10s}
+    {redirect:$RedirectConfirmationTo}
+    [IF $EnableReaction == True]
+    {reactbot:$Reactions}
+    [/IF]
+    {embed:
+      {title:$TitleEmbed}
+      {type:rich}
+      [IF $RandColorEnable == True]
+            {color:
+              {randlist:
+                #ff0000,#00ff00,#ffffff,#4286f4,
+                #f45642,#262525,#e2d626,#87e226,
+                #26e2c0,#2633e2,#8126e2
+            }
+            }
+            [/IF]
+      {desc:
+        {params}
+      }
+      [IF $FooterEnable == True]
+        {footer|text:$MadeBy} 
+        {footer|icon:
+            {usericon}
+        }
+        [/IF]
+    }
+      [/IF]
+[#CONTINUE#]
+
+&.aprovedsuggestion {params}={init}
+{req:Developer}{mention:mention the person that suggested!}
+use | suggestions-ideas
+{if(ischannel):
+  {del}
+  {msg:{user}Your suggestion has been aproved.}
+  {delme:10s}
+  {redirect:392412548554555392}
+  {embed:
+    {title:Suggestion aproved!}
+      {type:rich}
+        {color:
+          {randlist:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+         }
+      }
+    {desc:
+      {params}
+    }
+    {footer|text:suggestion made by: {user}} 
+    {footer|icon:
+        {usericon}
+    }
+  }
+} (else) {
+  You can't do that here!
+  {del:5s}
+}
+
+&.aprovedsuggestion {params}={init}
+{req:Developer}
+use | suggestions-ideas
+{if(ischannel):
+  {del}
+  {msg:{user}Your suggestion has been aproved.}
+  {delme:10s}
+  {redirect:392412548554555392}
+  {embed:
+    {title:Suggestion aproved!}
+      {type:rich}
+        {color:
+          {randlist:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+         }
+      }
+    {desc:
+      {params}
+    }
+    {footer|text:suggestion made by: @{/user}#{discrim}} 
+    {footer|icon:
+        {usericon}
+    }
+  }
+} (else) {
+  You can't do that here!
+  {del:5s}
+}
+[#CONTINUE#]
+
+&.bugreport {params}={init}
+{split:-}
+{e?ticketid:bugticket(+1)}
+Your bug has been recieved. The developer team will work on it.
+{ars:#bugreport}{del}{delme:20}
+{m?temp:text} := {/p0}
+{m?temp:ismedia} := {/p1}
+[#CONTINUE#]
+
+.auto #bugreport={init}{redirect:392411283636486155}
+{arslock}{ars:ifmedia}
+{embed:{type:rich}
+    {title: New bug report by {/user}}
+    {color:
+        {randlist:#ff0000,#ff6600}}
+    {field[0]|name:Bug desc:}
+       {field[0]|value:{content}}
+    {field[1]|name:Date:}
+        {field[1]|value:{timestamp}}
+    {field[2]|name:Bug ID:}
+        {field[2]|value:{r?ticketid:bugticket}}
+
+[#CONTINUE#]
+
+#ifmedia={init}
+String.{r?temp:ismedia} == media?:{user} Channel #bugs_crash-media-channel has been enabled to you. Upload there your files (screenshots, crash files...) and then when you are done write .done <Bug ID> .  You can find the bug report ID in #bug_list. It might take up to 5 second to enable you the channel.{role:Mediareport}{ars:HasRep}
+Response.nil?:{ars:HasRep}
+[#CONTINUE#]
+
+createUserRepP={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:addRep}
+
+[#CONTINUE#]
+
+addRep={init}
+{arslock}
+{e?rep:{rawid}(+5)}
+{user}, you have been awardnered with 5+ rep for your help.{delme:5s}
+
+[#CONTINUE#]
+
+.resetticketid={init}{req:ADM}
+{m?ticketid:bugticket} := 0
+
+
+
+&.suggestion {params}={init}
+use | suggestions
+{if(ischannel):
+  {del}
+  {msg:{/user} Your suggestion has been recieved correctly.}
+  {delme:10s}
+  {redirect:392410132652359682}
+  {reactbot:✅ ❌}
+  {embed:
+    {title:Suggestion!}
+      {type:rich}
+        {color:
+          {randlist:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+         }
+      }
+    {desc:
+      {params}
+    }
+    {footer|text:suggestion made by: {self}} 
+    {footer|icon:
+        {usericon}
+    }
+  }
+} (else) {
+  You can't do that here!
+  {del:5s}
+}
+[#CONTINUE#]
+&.aprovedsuggestion {params}={init}
+{req:Developer}
+use | suggestions-ideas
+{if(ischannel):
+  {del}
+  {msg:{user}Your suggestion has been aproved.}
+  {delme:10s}
+  {redirect:392412548554555392}
+  {embed:
+    {title:Suggestion aproved!}
+      {type:rich}
+        {color:
+          {randlist:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+         }
+      }
+    {desc:
+      {params}
+    }
+    {footer|text:suggestion made by: @{/user}#{discrim}} 
+    {footer|icon:
+        {usericon}
+    }
+  }
+} (else) {
+  You can't do that here!
+  {del:5s}
+}
+[#CONTINUE#]
+&.ascii {params}={init}
+Params.Length <= 10?:```{ascii:{params}}```
+Response.nil?:Keep the content below 11 Characters.
+[#CONTINUE#]
+&.bugreport {params}={init}
+use | bugs_report
+{if(ischannel):
+Your bug has been recieved. The developer team will work on it.
+{ars:#bugreport}{del}{delme:20}} (else) {This command can't be executed in this channel.{del}{delme:10s}}
+[#CONTINUE#]
+&propuesta={init} 
+{reactme:❌ ⭕ }
+[#CONTINUE#]
+createUserRepM={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:takeRep}
+[#CONTINUE#]
+createUserRepView={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:viewRep}
+[#CONTINUE#]
+#bugreport={init}
+{redirect:392411283636486155}
+{embed:
+{title: New bug report by {/user}}
+{color:
+{randlist:#ff0000,#ff6600}}
+{desc:Bug Report: {params}}
+{footer|text: {timestamp}}}
+{del}
+{ars:HasRep}
+[#CONTINUE#]
+&.viewrep={init}
+DB:rep.{rawid}?:{ars:viewRep}
+Response.nil?:{ars:createUserRepView}
+[#CONTINUE#]
+HasRep={init}
+{arslock}
+DB:rep.{rawid}?:{ars:addRep}
+Response.nil?:{ars:createUserRepP}
+[#CONTINUE#]
+addRep={init}
+{arslock}
+{e?rep:{rawid}(+1)}
+{m?rep:{/rawid}-{rawid}} := +
+{user}, you have been awardnered with +1 rep for your help.{delme:5s}
+[#CONTINUE#]
+viewRep={init}
+{arslock}
+**{/user}'s Reputation:** *{r?rep:{rawid}}*
+[#CONTINUE#]
+&.Rrole {params}={init}
+{req:ADM}
+{take:{params}}{user}{del}{delme}
+[#CONTINUE#]
+&.role {params}={init}
+{req:ADM}
+{del}{delme:50ms}
+{role:{params}}{/user}
+[#CONTINUE#]
+&.rrole {params}={init}
+{req:ADM}
+{del}{delme}{take:{params}}{/user}
+[#CONTINUE#]
+createUserRepP={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:addRep}
+[#CONTINUE#]
+takeRep={init}
+{arslock}
+{e?rep:{rawid}(-1)}
+{m?rep:{/rawid}-{rawid}} := -
+{user}, +1 rep had been taken from your rep for not being useful/disturbing.
+
+&.done={init}
+{redirect:392411283636486155}
+Media about latest bug `({r?ticketid:bugticket})` in <#402537163004051467>
+
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {F0C6F31E-A9F3-4866-9C20-6BEC115FF8E1}
+	EndGlobalSection
+EndGlobal
+
+[CONFIG]
+//Only allow in specific channel:
+  specificchannel=True
+  //If above = false ignore this
+  //alowed channels eithe the name or the channel id Separated with .|. like chanid | chanid (same with names)
+  allowedChannels:suggestions 
+  //Message if channel is not the one above
+  NotChannel=You can't do that here!{del:5s}
+
+//Change the command you want to use to make suggestions.
+  CMDSuggestion=.suggestion
+//Change the message to confirm that the suffestion has been recieved correctly
+  ConfirmationMessage={/user} Your suggestion has been recieved correctly.
+//Change the channel ID you want to redirect the suggestion embed to
+  RedirectSuggEmbedTo=392410132652359682
+//REACTIONS:
+  EnableReaction=True
+  Reactions=✅ ❎ 
+//Embed 
+  TitleEmbed=Suggestion
+  RandColorEnable=True
+  FooterEnable=True
+  //The next is the footer text. Default is "suggestion made by: {self}"
+  MadeBy:suggestion made by: {self}
+
+[/CONFIG]
+  &$CMDSuggestion {params}={init}
+  [IF $specificchannel == True]
+    use | $allowedChannels
+    {if(ischannel):
+      {del}New suggestion redirected to <#392410132652359682>
+      {delme:10s}
+      [IF $EnableReaction == True]
+        {reactbot:$Reactions}
+      [/IF]
+      {embed:
+        {title:$TitleEmbed}
+        {type:rich}
+        [IF $RandColorEnable == True]
+          {color:
+              {randlist:
+                  #ff0000,#00ff00,#ffffff,#4286f4,
+                  #f45642,#262525,#e2d626,#87e226,
+                  #26e2c0,#2633e2,#8126e2
+                }
+              }
+          [/IF]
+        {desc:
+          {params}
+          }
+        [IF $FooterEnable == True]
+          {footer|text:Suggestion by: {self}} 
+          {footer|icon:
+              {usericon}
+          }
+            [/IF]
+      }
+    } (else) {
+      $NotChannel
+    }
+    [/IF]
+  [IF $specificchannel == False]
+  {del}New suggestion redirected to <#392410132652359682>
+
+    [IF $EnableReaction == True]
+      {reactbot:$Reactions}
+    [/IF]
+      {embed:
+        {title:$TitleEmbed}
+        {type:rich}
+        [IF $RandColorEnable == True]
+              {color:
+                {randlist:
+                  #ff0000,#00ff00,#ffffff,#4286f4,
+                  #f45642,#262525,#e2d626,#87e226,
+                  #26e2c0,#2633e2,#8126e2
+              }
+              }
+        [/IF]
+        {desc:
+          {params}}
+        [IF $FooterEnable == True]
+          {footer|text:Suggestion by: {self}} 
+          {footer|icon:
+              {usericon}
+          }
+        [/IF]
+      }
+      [/IF]{ars:#suggestion}
+[#CONTINUE#]
+#suggestion={init}{arslock}{redirect:392410132652359682}
+      {redirect:$RedirectConfirmationTo}
+      [IF $EnableReaction == True]
+        {reactbot:$Reactions}
+      [/IF]
+      {embed:
+        {title:$TitleEmbed}
+        {type:rich}
+        [IF $RandColorEnable == True]
+          {color:
+              {randlist:
+                  #ff0000,#00ff00,#ffffff,#4286f4,
+                  #f45642,#262525,#e2d626,#87e226,
+                  #26e2c0,#2633e2,#8126e2
+                }
+              }
+          [/IF]
+        {desc:
+          {params}
+          }
+        [IF $FooterEnable == True]
+          {footer|text:Suggestion by: {self}} 
+          {footer|icon:
+              {usericon}
+          }
+            [/IF]
+      }
+      &.suggestion {params}={init}
+use | suggestions
+{if(ischannel):
+  {del}
+  {msg:{/user} Your suggestion has been recieved correctly.}
+  {delme:10s}
+  {redirect:392410132652359682}
+  {reactbot:? ?}
+  {embed:
+    {title:Suggestion!}
+      {type:rich}
+        {color:
+          {randlist:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+         }
+      }
+    {desc:
+      {params}
+    }
+    {footer|text:suggestion made by: {self}} 
+    {footer|icon:
+        {usericon}
+    }
+  }
+} (else) {
+  You can't do that here!
+  {del:5s}
+}
+[#CONTINUE#]
+&.testerapplication {params}={init}
+{-mention}
+{split: + }
+DB:testers.nombre{rawid}?:{ars:#modifytesterinfo}
+Response.nil?:{ars:#createtesterinfo}
+{embed:
+{title:Check your application:}
+{field[0]|name:Name}
+{field[0]|value:{/p0}}
+{field[1]|name:Steam name}
+{field[1]|value:{/p1}}
+{field[2]|name:Why want to be tester of the game:}
+{field[2]|value:{/p2}}
+{field[3]|name:Little review of the game}
+{field[3]|value:{/p3}}
+{field[4]|name:Pc Setup (separated with coma)}
+{field[4]|value:{/p4}}
+}
+
+[#CONTINUE#]
+
+#createtesterinfo={init}{split: + }
+{m?testers:name--------{rawid}} := {/p0}
+{m?testers:steamname---{rawid}} := {/p1}
+{m?testers:whytester---{rawid}} := {/p2}
+{m?testers:review------{rawid}} := {/p3}
+{m?testers:setup-------{rawid}} := {/p4}
+[#CONTINUE#]
+#modifytesterinfo={init}
+{e?testers:name--------{rawid}} := {/p0}
+{e?testers:steamname---{rawid}} := {/p1}
+{e?testers:whytester---{rawid}} := {/p2}
+{e?testers:review------{rawid}} := {/p3}
+{e?testers:setup-------{rawid}} := {/p4}
+
+[#CONTINUE#]
+
+.viewtesterprofile={init}{split: + }
+{embed:
+{title:Info about tester:`{user}` rawid:`{rawid}`}
+{field[0]|name:Name}
+{field[0]|value:{r?testers.name}}
+{field[1]|name:Steam name}
+{field[1]|value:{r?testers.steamname}}
+{field[2]|name:Why want to be tester of the game:}
+{field[2]|value:{r?testers.whytester}}
+{field[3]|name:Little review of the game}
+{field[3]|value:{r?testers.review}}
+{field[4]|name:Pc Setup (separated with coma)}
+{field[4]|value:{r?testers.setup}}
+}
+
+[#CONTINUE#]
+
+[CONFIG]
+unverified=unverified
+//Log Embed:
+Timestamp=Europe/Madrid
+NewmemberTitle=Nuevo miembro:
+Redirectto=421307234312781824
+[/CONFIG]
+[TASK]
+for::log::DEFUNCT
+[/TASK]
+
+€join={init}
+    {Event:Join}
+    {role:unverified}
+    {ars:#log1}
+[#CONTINUE#]
+#log1={init}{arslock}{ars:#log2}
+{m?log:{rawid}} := Timestamp.$Timestamp?    {redirect:$Redirectto}    {embed:        {title:$NewmemberTitle}            {field[0]|name:Nombre}                {field[0]|value:{self}}            {field[1]|name:ID:}                {field[1]|value:{rawid}}            {field[2]|name:Invitación:}                {field[2]|value:{invcode}}            {field[3]|name:Fecha:}               {field[3]|value:{timestamp:Se unió el 02 / 01 / 2006 03:04}}    }
+[#CONTINUE#]
+
+#log2={init}{arslock}
+    Timestamp.$Timestamp?
+    {redirect:$Redirectto}
+    {embed:
+        {title:$NewmemberTitle}
+            {field[0]|name:Nombre}
+                {field[0]|value:{self}}
+            {field[1]|name:ID:}
+                {field[1]|value:{rawid}}
+            {field[2]|name:Invitación:}
+                {field[2]|value:{invcode}}
+            {field[3]|name:Fecha:}
+                {field[3]|value:{timestamp:Se unió el 02 / 01 / 2006 03:04}
+    }
+[#CONTINUE#]
+
+
+.auto {arslock}{ars:#log2}
+{m?log:{rawid}} := Timestamp.Europe/Madrid?{embed:{title:Nuevo Miembro:}{field[0]|name:Nombre{field[0]|value:{self}}{field[1]|name:ID:}{field[1]|value:{rawid}}{field[2]|name:Invitación:}{field[2]|value:{invcode}}{field[3]|name:Fecha:}{field[3]|value:{timestamp:Se unió el 02 / 01 / 2006 03:04}}    }
+
+.auto #log2={init}{arslock}{ars:#log3}
+
+    Timestamp.Europe/Madrid?
+    {redirect:421307234312781824}
+    {embed:
+        {title:Nuevo miembro:}
+            {field[0]|name:Nombre}
+                {field[0]|value:{self}}
+            {field[1]|name:ID:}
+                {field[1]|value:{rawid}}
+            {field[2]|name:Invitación:}
+                {field[2]|value:{invcode}}
+            {field[3]|name:Fecha:}
+                {field[3]|value:{timestamp:Se unió el 02 / 01 / 2006 03:04}
+    }
+
+&mm={init}
+String.{le?groupdb:{.grupo}({r?Usuarios:{rawid}})} == False?:{la?groupdb:{.grupo}({r?Usuarios:{rawid}})}        {embed:{title:Grupo actual:}{desc:{lr?groupdb:{.grupo}(,  )}}}
+Response.nil?:{.grupo++}{ars:#mm}
+
+.votekick {params}={init}
+    String.{le?groupdb:{.grupo}({params})} == True?:{ars:#votekick}
+    Response.nil?:Nombre incorrecto
+[#CONTINUE#]
+
+#votekick={init}{arslock}
+    String.{le?groupdb:kick({params}) == True?:{e?groupdb:kick{params}(+1)}{ars:#votekick2}
+    Response.nil?: {m?groupdb:kick{params}} := 1
+[#CONTINUE#]
+
+#votekick2={init}{arslock}
+    Count.{r?groupdb.kick{params}} = 4?:{ld?groupdb:{.grupo}({params})}
+    Count.{r?groupdb.kick{params}} < 4?:Quedan `{math:{ld?groupdb:{.grupo}({params})}-4}` votos
+
+[#CONTINUE#]
+#mm={init}{arslock}{la?LFG:{.grupo}({r?Usuarios:{rawid}})}
+
+[INFO]
+[/INFO]
+[CONFIG]
+unverified role: unverified
+[/CONFIG]
+[TASK]
+for::Usuarios::DEFUNCT
+[/TASK]
+
+
+&.registrar {params}={init}
+    /*a la Base de datos*/
+    {m?Usuarios:{/rawid}} := {params}
+    {take:$unverified}
+    
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 15
+VisualStudioVersion = 15.0.27130.2010
+MinimumVisualStudioVersion = 10.0.40219.1
+Global
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {052C1C6C-6F93-4C95-AFFE-4748B9A7A9AB}
+	EndGlobalSection
+EndGlobal
+
+.auto &.warn={init}
+{redirect:392584058237878282}
+{embed:
+{type:rich}
+{title:Warning}
+{desc:
+{user} has been warned by {self}{discrim}
+}
+{footer:
+Powered by:ThePromidius
+}
+}
+{ars:warn#1}
+
+
+.auto warn#1={init}
+{arslock}
+{m?:warn.{rawid}} := warn1
+
+
+.auto warn#2={init}
+{arslock}
+DB:warn.warn,{rawid}:
+
+.auto &.support={init}
+{ars:#support}
+
+.auto .support={init}
+{arslock}{ars:#support}
+
+
+.auto .yes={init}
+{ars:#support}
+{clear:100}
+{ars:#support}
+
+.auto #support={init} 
+{-mentions}
+{embed:
+    {title:Support!}
+    {type:rich}
+    {color:
+        {randlist2:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+        }
+    }  
+    {image|width:250}
+    {image|height:250}
+    {desc:
+1. Bot Info?
+2. Obtainable roles?
+3. What a channel is for?
+    }
+    {footer|text:Requested: {/user}}
+    {footer|icon:
+        {usericon}
+    }
+}
+{ars:delf}
+
+
+.auto delf={init}
+{arslock}
+Are you done? .yes or .no
+[CONFIG]
+    RedirectMessage=El link ha sido redireccionado a el canal <#417821669042814981>
+    EmbedTitleRedirected=Nuevo Clip!
+    RedirectToChannel=417821669042814981
+    SharedBy=Clip compartido por {self}
+[/CONFIG]
+
+&{:}(?i)(clips).(twitch).(tv).*={init}{del:20s}{delme:30s}
+    $RedirectMessage
+    {ars:#Clip2}
+[#CONTINUE#]
+
+#Clip2={init}{arslock}
+    {redirect:$RedirectToChannel}
+$EmbedTitleRedirected
+$SharedBy
+{content}
+[#CONTINUE#]
+
+suggembedpic={init}{arslock}
+    {embed:
+    {title:Image idea!}
+      {type:rich}
+        {color:
+          {randlist:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+         }
+      }
+      {image|url:{params}}
+    {footer|text:suggestion made by: {self}} 
+    {footer|icon:
+        {usericon}
+    }
+  }
+{reactbot:✅ ❌}
+[#CONTINUE#]
+&.meme={init} {embed:
+    {title:Random Memes!}
+    {url:https://api.xtclabs.net}
+    {type:rich}
+    {color:
+        {randlist2:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+        }
+    }
+    {image|url:
+        {meme}
+    }
+    {image|width:250}
+    {image|height:250}
+    {footer|text:Requested: {/user}}
+    {footer|icon:
+        {usericon}
+    }
+}
+[#CONTINUE#]
+#007={init}
+{ars:#00A}
+{redirect:389715971436314624}
+```css
+ [TICKET CERRADO]
+```{delme:5m}
+[#CONTINUE#]
+join={init}
+{Event:Join}{ars:joinpm}
+{redirect:385051469973553163}{/user} has joined with{invcode}invite code by{invowner}
+[#CONTINUE#]
+#005={init}
+DB:tempuser.user?:{ars:#006}
+Response.nil?:No hay tickets abiertos actualmente.{del}{delme:30s}
+
+
+[#CONTINUE#]
+#006={init}
+{target:{r?tempuser:user}}{clear:100}{clear:100}{ars:#007}{take:supportroom1}
+
+
+[#CONTINUE#]
+&.GAW={init}{req:ADM}{role:Giveaway-Winner}{/user}{del}
+[#CONTINUE#]
+&.imageidea {params}={init}
+Your suggestion has been recieved correctly.
+  {delme:10s}{del}{clean}{ars:sleepimageidea}
+[#CONTINUE#]
+.server={init}
+{embed:
+    {title:Information for {guild|name}}
+    {type:rich}
+    {author|name:{owner|name}}
+    {author|icon:{owner|avatar}}
+    {author|url:{owner|avatar}}
+    {color:
+        {randlist:
+             #ff0000,#00ff00,#ffffff,#4286f4,
+             #f45642,#262525,#e2d626,#87e226,
+             #26e2c0,#2633e2,#8126e2
+        }
+    }
+    {thumb|url:{guild|icon}}
+    {desc:
+───────────────────────
+× ID:                     {guild|id}
+× Region:             {guild|region}
+× OwnerID:        {owner|id}
+× Discord Icon:  [Click to view Guild Icon]({guild|icon})
+× Members:       {membercount}
+× Channels:        {channelcount}
+× Roles:               {rolecount}
+───────────────────────
+    }
+    {footer|icon:https://xtclabs.net/img/favicon-new.png}
+    {footer|text: Echo 2.0 A.R.S}
+}
+[#CONTINUE#]
+/*Ticket System*/
+.infoticket={init}
+Sigue esta gu�a para abrir un nuevo ticket de soporte.
+Lo primero de todo, debes escribir `.openticket Tipo de Ayuda que necesitas (Hardware/Software) - (Relacionado con: "juegos"/"software en general" - Descripci�n detallada de tu problema`
+[#CONTINUE#]
+#004={init}{arslock}
+{target:{r?tempuser:user}}{role:supportroom1}
+
+
+[#CONTINUE#]
+&.idea {params}={init}
+Your suggestion has been recieved correctly.
+  {delme:10s}{clean}{sleep:5s}{ars:suggembed}
+[#CONTINUE#]
+&.ticket {params}={init}
+Params.Confirmar?:{ars:#001}
+Params.Rechazar?:{ars:#00A}Tu ticket ha sido cancelado exitosamente.{del:10s}{delme:20s}
+Response.nil?:No has escrito correctamente
+
+
+[#CONTINUE#]
+&.viewrep={init}
+DB:rep.{rawid}?:{ars:viewRep}
+Response.nil?:{ars:createUserRepView}
+[#CONTINUE#]
+&role_en={init} 
+{role:EN} 
+{del}
+[#CONTINUE#]
+#01A={init}
+{arslock}
+{x?tempuser}
+[#CONTINUE#]
+createUserRepM={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:takeRep}
+[#CONTINUE#]
+joinpm={init}{protect}{pm} ----------------------------------------------------------------------------------------------------------
+🇪🇸 {/user} Bienvenido a mi servidor.
+Para poder chatear o participar debes darte un rol dependiendo de la lengua que hables, escribe: `&role_es` para asignarte el rol.
+
+🇺🇲 {/user} Welcome to my server.
+If you want to be able to chat you must write: `&role_en` in order to assign yourself the english role
+
+----------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+
+```css
+----------------------------------------------------------------------------------------------------------
+
+En el canal #juegos-gratis_free-games  se publican juegos que estan disponibles durante un tiempo GRATIS para que puedas ir a comprarlos, repito GRATIS
+----------------------------------------------------------------------------------------------------------
+In the channel #juegos-gratis_free-games  are posted games that are aviable for FREE, either in steam or any other. yes, FREE
+
+----------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+
+Si quieres participar en el chat de un juego especifico no dudes en pedirselo a algun @ADM o a mi mismo @The Promidius#9496 
+----------------------------------------------------------------------------------------------------------
+If you want to be able to chat in a specific game chat just ask for the role of the game to any @ADM or even to me @The Promidius#9496
+----------------------------------------------------------------------------------------------------------
+```Mira el siguiente vídeo de presentación: `Guía presentación de mi servidor de Discord`
+https://www.youtube.com/watch?v=ELhrWj_Rq0s
+[#CONTINUE#]
+suggembed={init}{arslock}
+    {embed:
+    {title:Suggestion!}
+      {type:rich}
+        {color:
+          {randlist:
+            #ff0000,#00ff00,#ffffff,#4286f4,
+            #f45642,#262525,#e2d626,#87e226,
+            #26e2c0,#2633e2,#8126e2
+         }
+      }
+    {desc:
+      {params}
+      {image|url:{params}}
+    {image|width:250}
+    {image|height:250}
+    }
+    {footer|text:suggestion made by: {self}} 
+    {footer|icon:
+        {usericon}
+    }
+  }
+{reactbot:✅ ❌}
+[#CONTINUE#]
+#001={init}
+{arslock}
+{m?ticketid:randnumber} := {rand:1,9999}
+DB:tempuser.user?:{ars:#002}Tu ticket ha sido recogido exitosamente. Dentro de poco alguno de nuestros profesionales acceptar� el ticket. ID TICKET `#{rand:1,9999}`
+Response.nil?:{del}No hay tickets abiertos actualmente
+
+
+[#CONTINUE#]
+&GAW={init}{req:ADM}{role:Giveaway-Winner}{/user}{del}
+[#CONTINUE#]
+&.propuesta={init} 
+{reactme:❌ ⭕ }
+[#CONTINUE#]
+&role_pv={init}{req:ADM}{role:Privileged}{/user}{del}
+[#CONTINUE#]
+.tpyt={init}
+{embed:
+    {title:Information for {owner|name}}
+    {type:rich}
+    {author|name:{owner|name}}
+    {author|icon:{owner|avatar}}
+    {author|url:https://www.youtube.com/c/ThePromidius}
+    {color:
+        {randlist:
+             #ff0000,#00ff00,#ffffff,#4286f4,
+             #f45642,#262525,#e2d626,#87e226,
+             #26e2c0,#2633e2,#8126e2
+        }
+    }
+    {thumb|url:{guild|icon}}
+    {desc:
+───────────────────────
+× Youtube	[Click para ver el canal de youtube ThePromidius](https://www.youtube.com/c/ThePromidius)
+× Steam		[Click para ver perfil de steam de ThePromidius](http://steamcommunity.com/id/ThePromidius/)
+× Twitch    [Click para ver el canal de Twitch ThePromidius](https://www.twitch.tv/thepromidius/)
+
+───────────────────────
+    }
+    {footer|icon:{owner|avatar}}
+    {footer|text: Powered by ThePromidius}
+}
+ /*{guild|region}
+× OwnerID:        {owner|id}
+× Discord Icon:  [Click to view Guild Icon]({guild|icon})
+× Members:       {membercount}
+× Channels:        {channelcount}
+× Roles:               {rolecount}*/
+[#CONTINUE#]
+takeRep={init}
+{arslock}
+{e?rep:{rawid}(-1)}
+{m?rep:{/rawid}-{rawid}} := -
+{self} I have taken 1 from {/user}'s reputation.
+[#CONTINUE#]
+viewRep={init}
+{arslock}
+**{/user}'s Reputation:** *{r?rep:{rawid}}*
+[#CONTINUE#]
+&.ascii {params}={init}
+Params.Length <= 10?:```{ascii:{params}}```
+Response.nil?:Keep the content below 11 Characters.
+[#CONTINUE#]
+&.remove={init}{take:ES}
+[#CONTINUE#]
+&.rrole {params}={init}
+{req:ADM}
+{del}{delme:30ms}
+{take:{params}}{/user}
+[#CONTINUE#]
+sleepimageidea={init}
+{arslock}{sleep:10s}{ars:suggembedpic}
+[#CONTINUE#]
+&.role_en={init} 
+{role:EN} 
+{del}
+[#CONTINUE#]
+createUserRepView={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:viewRep}
+[#CONTINUE#]
+#003={init}
+{arslock}
+{redirect:389715971436314624}
+{ars:#004}
+{embed:
+    {type:rich}
+    {Title:Detalles Sobre el ticket}
+    {author|name: Ticket abierto por: <@{r?tempuser:nuser}>}
+    {author|icon: {usericon}}
+    {field[0]|name:Tipo de ayuda:}
+    {field[0]|value:{r?temp:part0}}
+    {field[1]|name:Relacionado con:}
+    {field[1]|value:{r?temp:part1}}
+    {field[2]|name:Descripci�n:}
+    {field[2]|value:{r?temp:part2}}
+    {footer|text:Ticket ID: #{r?ticketid:randnumber}}
+}
+
+
+[#CONTINUE#]
+createUserRepP={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:addRep}
+[#CONTINUE#]
+&.Aceptar_Ticket {params}={init}
+{m?tempuser:aceptuser} := {/user}
+Params.{r?ticketid:randnumber}?:{ars:#003}{pm:{r?tempuser:user}}{clean}Tu ticket con id: `#{r?ticketid:randnumber}` ha sido aceptado por {self}
+Params.nil?:No hay tickets abiertos actualmente.
+
+
+[#CONTINUE#]
+&.role_es={init} 
+{role:ES} 
+{del}
+[#CONTINUE#]
+&role_es={init} 
+{role:ES} 
+{del}
+[#CONTINUE#]
+#00A={init}
+{arslock}{ars:#01A}
+{x?temp}
+
+
+[#CONTINUE#]
+addRep={init}
+{arslock}
+{e?rep:{rawid}(+1)}
+{m?rep:{/rawid}-{rawid}} := +
+{self} I have added 1 to {/user}'s reputation.
+[#CONTINUE#]
+&+rep={init}
+String.{rawid} == {/rawid}?:Mention the member you want to give +rep.
+String.{r?rep:{/rawid}-{rawid}} == +?:You have already given this user +rep!
+DB:rep.{rawid}?:{ars:addRep}
+Response.nil?:{ars:createUserRepP}
+[#CONTINUE#]
+&.close_ticket={init}
+use | supportroom1
+{if(ischannel):
+{ars:#005}} (else) {Este comando no est� disponible en este canal}
+ 
+ 
+[#CONTINUE#]
+&.openticket {params}={init}
+use | tickets
+{if(ischannel):
+{split: - }
+{m?temp:part0} := {/p0}
+{m?temp:part1} := {/p1}
+{m?temp:part2} := {/p2}
+{m?tempuser:user} := {/rawid}
+{m?tempuser:nuser} := {self}
+{embed:
+    {type:rich}
+    {Title:Confirmaci�n del TICKET}
+    {author|name: Ticket abierto por: <@{r?tempuser:nuser}>}
+    {author|icon: {usericon}}
+    {field[0]|name:Tipo de ayuda:}
+    {field[0]|value:{/p0}}
+    {field[1]|name:Relacionado con:}
+    {field[1]|value:{/p1}}
+    {field[2]|name:Descripci�n:}
+    {field[2]|value:{/p2}}
+}
+```Confirmaci�n del ticket.```{clean}
+Escribe `.ticket Confirmar` para confirmar operaci�n o `.ticket Rechazar" para cancelar la operaci�n.
+} (else) {Solo puedes ejecutar ese comando en el canal #ticket {del}{delme:30s}}
+
+
+[#CONTINUE#]
+&.pm {params}={init}{req:ADM}{pm:{user}}{params}
+[#CONTINUE#]
+embedrssarofel={init}
+{arslock}
+{embed:
+{title:RSS de ARoFel}
+{color:{randlist:#ff0000,#ff6600}}}
+{desc:
+× [Youtube](https://www.youtube.com/channel/UCfRPO8I3nDkXGGLafXRe5xw)
+× [Facebook](https://www.facebook.com/ARoFel-1436033153362625/?ref=aymt_homepage_panel) 
+× [Twitter](https://twitter.com/ARoFel_97)}
+{footer|icon:{owner|avatar}}
+{footer|text:Powered by ThePromidius}
+}
+[#CONTINUE#]
+lvevnt={init}
+{protect}{redirect:389864009232416770}
+{Event:Leave}{/user}{discrim} Invitado con el codigo: `{invcode}`  por `{invowner}`
+[#CONTINUE#]
+.infoticket={init}
+Sigue esta guía para abrir un nuevo ticket de soporte.
+Lo primero de todo, debes escribir `.openticket Tipo de Ayuda que necesitas (Hardware/Software) - (Relacionado con: "juegos"/"software en general" - Descripción detallada de tu problema`
+[#CONTINUE#]
+#002={init}
+{arslock}
+{redirect:388139571809878026}
+{embed:
+    {type:rich}
+    {Title:Confirmaci�n del TICKET}
+    {author|name: Ticket abierto por: <@{r?tempuser:nuser}>}
+    {author|icon: {usericon}}
+    {field[0]|name:Tipo de ayuda:}
+    {field[0]|value:{r?temp:part0}}
+    {field[1]|name:Relacionado con:}
+    {field[1]|value:{r?temp:part1}}
+    {field[2]|name:Descripci�n:}
+    {field[2]|value:{r?temp:part2}}
+    {footer|text:Ticket ID: #{r?ticketid:randnumber}}
+}
+
+
+[#CONTINUE#]
+&.role {params}={init}
+{req:ADM}
+{del}{delme:30ms}
+{role:{params}}{/user}
+[#CONTINUE#]
+&.role_18={init}{req:ADM}{role:+18}{/user}{del}
+[#CONTINUE#]
+&-rep={init}
+String.{rawid} == {/rawid}?:Mention the member you want to give -rep.
+String.{r?rep:{/rawid}-{rawid}} == -?:You have already given this user -rep!
+DB:rep.{rawid}?:{ars:takeRep}
+Response.nil?:{ars:createUserRepM}
+[#CONTINUE#]
+&.Rrole {params}={init}{req:ADM}
+{take:{params}}{/user}{del}
+[#CONTINUE#]
+&.role_pv={init}{req:ADM}{role:Privileged}{/user}{del}
+[#CONTINUE#]
+&.rssarofel={init}
+Hey {/user} estas son las redes sociales de ARoFel
+{ars:embedrssarofel}
+[#CONTINUE#]
+&role_18={init}{req:ADM}{role:+18}{/user}{del}
+[CONFIG]
+suggestmusicmd=.musica
+redirecto=419956474316455946
+redirectedmessage=Nueva sugerencia para musica por :{self}
+disabledmessage=This command is disabled now
+reqenablerole=ADM
+[/CONFIG]
+
+[CREATE DB:music]
+
+&$suggestmusicmd {params}={init}
+String.{r?music:onoff} == ON?:{redirect:$redirecto}{del}```$redirectedmessage```{params}
+Response.nil?:$disabledmessage {del}{delme:20s}
+[#CONTINUE#]
+
+.enablemusic={init}{req:$reqenablerole}
+String.{r?music:onoff} == ON?:Succesfully disabled `$suggestmusicmd` {m?music:onoff} := OFF
+String.{r?music:onoff} == OFF?:Succesfully enabled `$suggestmusicmd` {m?music:onoff} := ON
+#Beatrice-Kashira={init}
+{m?role:{rawid}} := empezado
+{embed:
+{type:rich}
+{title:Pruebas de Beatrice Kashira}
+{field[0]|name:Beatrice es...}
+{field[0]|value: **A**: Una niña que salvó Rooswal | **B**: Un Espiritu Artificial | **C**: Un Gran Espiritu}
+{field[1]|name:La primera persona del anime con la que forma contrato es…}
+{field[1]|value: **A**: Rooswal | **B**: Echidna | **C**: Subaru | **D**: Puck}
+{footer|text:Escribe .beako <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta("A", "B", "C" o "D")>}
+}
+
+[#CONTINUE#]
+&.beako {params}={init}{del}
+DB:role.{rawid} == Empezado?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Response.nil?:{ars:#beako1}
+
+[#CONTINUE#]
+
+#beako1={init}{arslock}
+ParamRegex.((B)\s(C))?:{ars:#correctobeako}
+Response.nil?:Error
+
+[#CONTINUE#]
+
+#correctobeako={init}{arslock}
+{m?role:role{rawid}} := Ram-chi
+Toma el role de Beatrice Kashira {role:Beatrice Kashira}{d?role:{rawid}}{clear:100}{ars:.disponible}{readonly:400965396670185473}
+[#CONTINUE#]
+
+
+[#CONTINUE#]
+&.role {params}={init}
+{m?role:varinutil} := {params}
+DB:role.{rawid}} == empezado?:Ya hay unas pruebas iniciadas.
+Response.nil?:{ars:#role}{readnwrite:400965396670185473}
+
+#role={init}
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Params.Subaru?:{ars:#Subaru}
+Params.Felt?:{ars:#Felt}No disponible
+Params.Echidna?:{ars:#Echidna}
+Params.Emilia?:{ars:#Emilia}
+Params.Puck?:{ars:#Puck}No disponible
+Params.Rem?:{ars:#Rem} No disponible (en mucho tiempo)
+Params.Ram?:{ars:#Ram-chi}
+Params.Beatrice?:{ars:#Beatrice-Kashira}
+Params.Rooswal?:{ars:#Ros-chi}
+Params.Reinhard?:{ars:#Reinhard-Op}
+Params.Satella?:{ars:#Satella}
+
+[#CONTINUE#]
+
+.disponible={init}
+{embed:
+{type:rich}
+{title:Roles disponibles:}
+{desc:
+Echidna
+Emilia
+Ram
+Beatrice
+Rooswal
+Reinhard
+}
+{footer|text:Escribe `.role <alguno de los de arriba>}
+}
+
+[#CONTINUE#]
+
+&.skip={init}{req:Administrador}
+{clear:100}{readonly:400965396670185473}
+{d?role:{rawid}} Skipped {user}
+
+&.role {params}={init}
+DB:santuario.empezado?:{del}Ya hay unas pruebas iniciadas
+Response.nil?:{ars:#role1}
+
+
+[#CONTINUE#]
+  
+    #role1={init}{arslock}
+        Role.Beatrice Kashira?:{ars:#roletrue}
+        Role.Echidna?:{ars:#roletrue}
+        Role.Emilia-tan?:{ars:#roletrue}
+        Role.Ram-chi?:{ars:#roletrue}
+        Role.Reindhard-Op?:{ars:#roletrue}
+        Role.Ros-chi?:{ars:#roletrue}
+        Role.Satella?:{ars:#roletrue}
+        Role.Subaru-kyun?:{ars:#roletrue}
+        Response.nil?:{ars:#rolefalse}
+
+
+    
+[#CONTINUE#]
+
+
+    #roletrue={init}{arslock}
+        {del}Ya has realizado las pruebas
+
+[#CONTINUE#]
+
+    #rolefalse={init}{arslock}
+        use | santuario
+        {if(ischannel)
+            Params.Beatrice?:{ars#Beatrice}
+            Params.Echidna?:{ars:#Echidna}
+            Params.Ram?:{ars:#Ram}
+            Params.Reindhard?:{ars:#Reindhard}
+            Params.Rooswal?:{ars:#Rooswal}
+            Params.Satella?:{ars:#Satella}
+            Params.Subaru?:{ars:#Subaru}
+            {m?santuario:empezado} := {rawid}
+        
+        
+        
+        } (else) {No tienes permiso para ejecutar este comando fuera del santuario}
+
+    [#CONTINUE#]
+
+
+
+    #Beatrice={init}{arslock}
+        {embed:
+            {type:rich}
+            {title:Pruebas de Beatrice Kashira}
+            {field[0]|name:Beatrice es...}
+            {field[0]|value: **A**: Una niña que salvó Rooswal | **B**: Un Espiritu Artificial | **C**: Un Gran Espiritu}
+            {field[1]|name:La primera persona del anime con la que forma contrato es…}
+            {field[1]|value: **A**: Rooswal | **B**: Echidna | **C**: Subaru | **D**: Puck}
+            {footer|text:Escribe .beako <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta("A", "B", "C" o "D")>}
+        }
+    [#CONTINUE#]
+    #Echidna={init}{arslock}
+        {embed:
+            {type:rich}
+            {title:Pruebas de Echidna}
+            {field[0]|name:¿Cual es la relacion entre Echidna y Satella?}
+            {field[0]|value: **A**: Odio | **B**: Indiferencia frente a Satella | **C**: Amigas}
+            {field[1]|name:¿En que capitulo Echidna da su gran discurso para convencer a Subaru?}
+            {field[1]|value: **A**: 73 | **B**: 77 | **C**: 75 | **D**: 80}
+            {footer|text:Escribe .idna <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+        }
+    [#CONTINUE#]
+    #Ram-chi={init}{arslock}
+        {embed:
+            {type:rich}
+            {title:Pruebas de Ram-chi}
+            {field[0]|name:¿Cual de las 2 gemelas se considera mayor?}
+            {field[0]|value: **A**: Rem | **B**: Ram | **C**: Felix}
+            {field[1]|name:¿Que apodo le da a Subaru?}
+            {field[1]|value: **A**: Subo | **B**: Barusu | **C**: Baru | **D**: Subaru-kun}
+            {footer|text:Escribe .ram <respuesta a la primera pregunta ("A", "B", "C" o "D")> <respuesta a la segunda pregunta("A", "B", "C" o "D")>}
+        }
+    [#CONTINUE#]
+    #Reinhard-Op={init}
+        {embed:
+            {type:rich}
+            {title:Pruebas de Reinhard}
+            {field[0]|name:Reinhard se le conoce como…}
+            {field[0]|value: **A**: El demonio de la espada | **B**: El santo de la espada | **C**: El caballero valeroso}
+            {field[1]|name:La fuerza de Reinhard se compara a la de…}
+            {field[1]|value: **A**: Juulius | **B**: Satella | **C**: Ram enfurecida | **D**: Ninguna}
+            {footer|text:Escribe .rop <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+        }
+    [#CONTINUE#]
+    #Ros-chi={init}
+        {embed:
+            {type:rich}
+            {title:Pruebas de Rooswal}
+            {field[0]|name:¿De que color son los ojos de Rooswal?}
+            {field[0]|value: **A**: Azul y Rojo | **B**: Azul y Amarillo | **C**: Purpura y Naranja | **D**: Amarillo y Azul}
+            {field[1]|name:¿Que tipos de magia es capaz de utilizar?}
+            {field[1]|value: **A**: Ying Yang y de viento | **B**: Todas las magias | **C**: Todos los elementos excepto ying y yang | **D**: Ninguna}
+            {field[2]|name:¿Con quien jura acabar Rooswal en el anime?}
+            {field[2]|value: **A**: Con la bruja de la envidia | **B**: Con El Dragón | **C**: con el sabio Flugel | **D**: Ninguna}
+            {footer|text:Escribe .ros <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+        }        
+    [#CONTINUE#]
+    #Satella={init}
+        {m?role:{rawid}} := empezado
+        {embed:
+        {type:rich}
+        {title:Pruebas de Satella}
+        {field[0]|name:¿Cuantos años han pasado desde que la bruja de la envidia fué sellada?}
+        {field[0]|value: **A**: 396 | **B**: 415 | **C**: 400}
+        {field[1]|name:¿Cuales de estas autoridades posee Satella?}
+        {field[1]|value: **A**: Autoridad de la envidia | **B**: Autoridad de la Pereza | **C**: Ambas respuestas son correctas}            {footer|text:Escribe .tella <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+        }
+    [#CONTINUE#]
+    #Subaru={init}{arslock}
+        {embed:
+            {type:rich}
+            {title:Pruebas de Subaru}
+            {field[0]|name:¿Cuantas veces ha muerto Subaru en el anime?}
+            {field[0]|value: **A**: 11 | **B**: 9 | **C**:14}
+            {field[1]|name:¿Como dice la famosa frase?}
+            {field[1]|value: **A**: Emiria ga daisuki | **B**: ore wa emiria ga suki da | **C**:Watashi wa itoshi teru Emiria}
+            {footer|text:Escribe .subo <respuesta a la primera pregunta ("A", "B" o "C")> <respuesta a la segunda pregunta("A", "B" o "C")>}
+        }
+    [#CONTINUE#]    
+/*Params Links*/
+/*Respuestas*/
+    /*Beatrice*/
+.beako {params}={init}{arslock}
+ParamRegex.((B)\s(C))?:{ars:#correctobeako}
+Response.nil?:Error
+
+        [#CONTINUE#]    
+
+#correctobeako={init}{arslock}
+            Aqui tienes el role de Beatrice Kashira 
+            {role:Beatrice Kashira}
+            {d?santuario:empezado}
+            {clear:100}
+            {ars:.disponible}
+            {readonly:400965396670185473}
+        [#CONTINUE#]
+
+
+    /*Beatrice*/
+
+
+
+
+/*Respuestas*/
+
+#Echidna={init}
+{m?role:{rawid}} := empezado
+{embed:
+{type:rich}
+{title:Pruebas de Echidna}
+{field[0]|name:¿Cual es la relacion entre Echidna y Satella?}
+{field[0]|value: **A**: Odio | **B**: Indiferencia frente a Satella | **C**: Amigas}
+{field[1]|name:¿En que capitulo Echidna da su gran discurso para convencer a Subaru?}
+{field[1]|value: **A**: 73 | **B**: 77 | **C**: 75 | **D**: 80}
+{footer|text:Escribe .idna <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+}
+
+[#CONTINUE#]
+&.idna {params}={init}{del}
+DB:role.{rawid} == Empezado?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Response.nil?:{ars:#idna1}
+
+[#CONTINUE#]
+
+#idna1={init}{arslock}
+ParamRegex.((A)\s(C))?:{ars:#correctoechidna}
+Response.nil?:Error
+
+[#CONTINUE#]
+
+#correctoechidna={init}{arslock}
+{m?role:role{rawid}} := Echidna
+Toma el role de Echidna {role:Echidna}{d?role:{rawid}}{clear:100}{ars:.disponible}{readonly:400965396670185473}
+[#CONTINUE#]
+
+#Emilia={init}
+{m?role:{rawid}} := empezado
+{embed:
+{type:rich}
+{title:Pruebas de Emilia}
+{field[0]|name:¿Cual es la edad mental de Emilia?}
+{field[0]|value: **A**: 19 | **B**: 108 | **C**: 15}
+{field[1]|name:¿Que tipo de magia usa Emilia?}
+{field[1]|value: **A**: Agua | **B**: Hielo | **C**: Yang | **D**: Ninguna}
+{footer|text:Escribe .lia <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+}
+
+[#CONTINUE#]
+&.lia {params}={init}{del}
+DB:role.{rawid} == Empezado?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Response.nil?:{ars:#lia1}
+
+[#CONTINUE#]
+
+#lia1={init}{arslock}
+ParamRegex.((C)\s(A))?:{ars:#correctoemilia}
+Response.nil?:Error
+
+[#CONTINUE#]
+
+#correctoemilia={init}{arslock}
+{m?role:role{rawid}} := Emilia-tan
+Toma el role de Emilia-tan {role:Emilia-tan}{d?role:{rawid}}{clear:100}{ars:.disponible}
+[#CONTINUE#]
+#Ram-chi={init}
+{m?role:{rawid}} := empezado
+{embed:
+{type:rich}
+{title:Pruebas de Ram-chi}
+{field[0]|name:¿Cual de las 2 gemelas se considera mayor?}
+{field[0]|value: **A**: Rem | **B**: Ram | **C**: Felix}
+{field[1]|name:¿Que apodo le da a Subaru?}
+{field[1]|value: **A**: Subo | **B**: Barusu | **C**: Baru | **D**: Subaru-kun}
+{footer|text:Escribe .ram <respuesta a la primera pregunta ("A", "B", "C" o "D")> <respuesta a la segunda pregunta("A", "B", "C" o "D")>}
+}
+
+[#CONTINUE#]
+&.ram {params}={init}{del}
+DB:role.{rawid} == Empezado?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Response.nil?:{ars:#ram1}
+
+[#CONTINUE#]
+
+#ram1={init}{arslock}
+ParamRegex.((B)\s(B))?:{ars:#correctoram}
+Response.nil?:Error
+
+[#CONTINUE#]
+
+#correctoram={init}{arslock}
+{m?role:role{rawid}} := Ram-chi
+Toma el role de Ram-chi {role:Ram-chi}{d?role:{rawid}}{clear:100}{ars:.disponible}
+[#CONTINUE#]
+#Reinhard-Op={init}
+{m?role:{rawid}} := empezado
+{embed:
+{type:rich}
+{title:Pruebas de Reinhard}
+{field[0]|name:Reinhard se le conoce como…}
+{field[0]|value: **A**: El demonio de la espada | **B**: El santo de la espada | **C**: El caballero valeroso}
+{field[1]|name:La fuerza de Reinhard se compara a la de…}
+{field[1]|value: **A**: Juulius | **B**: Satella | **C**: Ram enfurecida | **D**: Ninguna}
+{footer|text:Escribe .rop <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+}
+
+[#CONTINUE#]
+&.rop {params}={init}{del}
+DB:role.{rawid} == Empezado?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Response.nil?:{ars:#reinhard1}
+
+[#CONTINUE#]
+
+#reinhard1={init}{arslock}
+ParamRegex.((B)\s(B))?:{ars:#correctoreinhard}
+Response.nil?:Error
+
+[#CONTINUE#]
+
+#correctoreinhard={init}{arslock}
+{m?role:role{rawid}} := Reinhard-Op
+Toma el role de Reinhard-Op {role:Reinhard-Op}{d?role:{rawid}}{clear:100}{ars:.disponible}
+[#CONTINUE#]
+#Ros-chi={init}
+{m?role:{rawid}} := empezado
+{embed:
+{type:rich}
+{title:Pruebas de Rooswal}
+{field[0]|name:¿De que color son los ojos de Rooswal?}
+{field[0]|value: **A**: Azul y Rojo | **B**: Azul y Amarillo | **C**: Purpura y Naranja | **D**: Amarillo y Azul}
+{field[1]|name:¿Que tipos de magia es capaz de utilizar?}
+{field[1]|value: **A**: Ying Yang y de viento | **B**: Todas las magias | **C**: Todos los elementos excepto ying y yang | **D**: Ninguna}
+{field[2]|name:¿Con quien jura acabar Rooswal en el anime?}
+{field[2]|value: **A**: Con la bruja de la envidia | **B**: Con El Dragón | **C**: con el sabio Flugel | **D**: Ninguna}
+{footer|text:Escribe .ros <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+}
+
+[#CONTINUE#]
+&.ros {params}={init}{del}
+DB:role.{rawid} == Empezado?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Response.nil?:{ars:#rooswal1}
+
+[#CONTINUE#]
+
+#rooswal1={init}{arslock}
+ParamRegex.((B)\s(B)\s(B))?:{ars:#correctorooswal}
+Response.nil?:Error
+
+[#CONTINUE#]
+
+#correctorooswal={init}{arslock}
+{m?role:role{rawid}} := Ros-chi
+Toma el role de Ros-chi {role:Ros-chi}{d?role:{rawid}}{clear:100}{ars:.disponible}
+[#CONTINUE#]
+
+#Satella={init}
+{m?role:{rawid}} := empezado
+{embed:
+{type:rich}
+{title:Pruebas de Satella}
+{field[0]|name:¿Cuantos años han pasado desde que la bruja de la envidia fué sellada?}
+{field[0]|value: **A**: 396 | **B**: 415 | **C**: 400}
+{field[1]|name:¿Cuales de estas autoridades posee Satella?}
+{field[1]|value: **A**: Autoridad de la envidia | **B**: Autoridad de la Pereza | **C**: Ambas respuestas son correctas}
+{footer|text:Escribe .tella <respuesta a la primera pregunta ( "A", "B" o "C")> <respuesta a la segunda pregunta( "A", "B" o "C")>}
+}
+
+[#CONTINUE#]
+&.tella {params}={init}{del}
+DB:role.{rawid} == Empezado?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+
+Response.nil?:{ars:#tella1}
+[#CONTINUE#]
+#tella1={init}{arslock}
+ParamRegex.((C)\s(A))?:{ars:#correctosatella}
+Response.nil?:Error
+[#CONTINUE#]
+
+#correctosatella={init}{arslock}
+{m?role:role{rawid}} := Satella
+Toma el role de Satella {role:Satella}{d?role:{rawid}}{clear:100}{ars:.disponible}
+[#CONTINUE#]
+
+#Subaru={init}{arslock}
+{m?role:{rawid}} := Subaru
+Has seleccinado {params}. Que empiecen las pruebas.
+{embed:
+{type:rich}
+{title:Pruebas de Subaru}
+{field[0]|name:¿Cuantas veces ha muerto Subaru en el anime?}
+{field[0]|value: **A**: 11 | **B**: 9 | **C**:14}
+{field[1]|name:¿Como dice la famosa frase?}
+{field[1]|value: **A**: Emiria ga daisuki | **B**: ore wa emiria ga suki da | **C**:Watashi wa itoshi teru Emiria}
+{footer|text:Escribe .subo <respuesta a la primera pregunta ("A", "B" o "C")> <respuesta a la segunda pregunta("A", "B" o "C")>}
+}
+[#CONTINUE#]
+&.subo {params}={init}
+DB:role.{rawid} == Subaru?:No hay ninguna prueba iniciada!
+DB:role.role{rawid}?:Ya has realizado las pruebas
+Response.nil?:{ars:#subo1}
+[#CONTINUE#]
+#subo1={init}{arslock}
+ParamRegex.((A)\s(B))?:{ars:#correctosubaru}
+Response.nil?:Error
+
+[#CONTINUE#]
+#correctosubaru={init}{arslock}
+{m?role:role{rawid}} := Subaru
+Toma el role de Subaru {role:Subaru-kyun}
+
+
+Garbo
+¿Cual es el apellido de Garfiel?
+Tinsel, Baumann
+¿El apellido de Garfiel es proveniente de...?
+Su padre, Su madre
+
+Otto Suwen
+¿En que episodio del anime aparece?
+12, 15, 14
+¿Que hace su proteccción divina?
+Puede controlar tierra, hablar con las criaturas, controlar viento
+
+Puck
+¿Pack se considera...?
+El abuelo de Emilia, un simple espiritu con el que hizo un contrato, El padre de Emilia
+¿A partir de que hora Puck esta despierto?
+9
+
+
+
+Rem-rin
+¿Cual de las 2 gemelas se considera mayor?
+R:00 am a 5:00pm, 8:00 am a 8:00 pm
+em, Ram, Felix
+¿En que episodio Rem se enamora de Subaru?
+11, 18, 16
+¿Quien es Rem?
+Best waifu, Tu tambien la has olvidado !?, un obstaculo que superar para llegar a Emilia
+
+
+
+Juulius
+¿Que tipo de magia utiliza Juulis?
+Yin y Yang, 4 elementos principales, todas las magias
+¿A partir de que momento Juulius y Subaru se llevan mejor?
+Despues de la batalla contra la ballena blanca, Despues de la lucha contra Petelgeuse
+
+Felix el trapito
+¿en que se especializa Felix?
+Magia de agua, magia curativa, magia de viento
+Felix se refiere asi mismo como…
+Felix,  Felix-kun, Felix-chan
+
+Felt
+Felt llama a Subaru…
+Subaru-kun, Onii-chan, Onee-chan, Baru
+¿En que episodio se descubre que es candidata al trono?
+2, 13, 15
+
+
+Petelgeuse Romanee-Conti
+¿Que papel representaba dentro del culto?
+Arzobispo de la Envidia, Arzobispo de la Pereza, Arzobispo del Orgullo
+¿Que habilidades posee Petelgeuse?
+mano oculta, posesión y magia de tierra, mano oculta y posesión, mano oculta y magia yang
+
+Regulus Corneas
+¿Que papel representaba dentro del culto?
+Arzobispo de la Envidia, Arzobispo de la Codicia, Arzobispo del Orgullo
+¿Quién lo acompañaba en el interludio del arco 3?
+Arzobispo de la Vanagloria, Arzobispo del Orgullo, Arzobispo de la Glotoneria
+¿De que color es su pelo?
+Rubio, Gris, Blanco
+
+
+&#role_={init}{role:params}
+[#CONTINUE#]
+&.role {params}={init}
+use | Rem-rin | Petra Kawaii
+{if(hasrole)
+Ya tienes un role
+} (else) {
+{role:{params}}
+Se ha asignado el rol {params} a {user}
+
+}
+
+[INFO]
+##Follow all the instructions to configure your captcha snippet correctly
+##Must say that when writing "True" or "False" is cap sensitive
+[/INFO]
+
+
+[CONFIG]
+//1. ENABLE FEAUTURES
+//Message once user is verified. For example a welcome message on general channel| Write "True" to enable or "False" to disable
+enableWelcomeMessage=True
+
+//2. CHANGE CONFIG
+//Instruction message its the first message that the user gets and also includes the captcha
+1message=Bienvenido {/user}, debes completar este captcha.
+
+//Select the command the user needs to write to get verified. By default is ".captcha" but you can change it
+cmdCaptcha=.captcha
+//Message (pm) to user once captcha is verified. (recommended to explain that they have to wait more or less 3 minutes to get fully verified)
+verifiedCaptcha1=Gracias por verificarte con `PromidiusSecurity` Por favor espera mientras te transferimos de `No Verificado` a `Ciudadano de Lugnica`. Esto puede tardar hasta 2 minutos... Mientras tanto echa un vistazo a  <#399619143558627332> y a <#399654577743331348> 
+
+//Message if captcha is not well spelt. (suggest to add that they have to try again)
+incorrectCaptcha=Codigo de verificacion incorrecto. Intentalo de nuevo
+
+//Message if the catcha is not completed on time 
+2messageNotCompleted={/user} No has completado el captcha a tiempo correctamente.
+3messageVerified=Te has verificado satisfactoriamente. Si no se te ha desbloqueado ningún canal, espera un poco si pasa mas de 3 minutos y sigues sin ver ningun canal contacta algún Administrador.
+            //Message once use is verified. For example a welcome message on general channel
+redirectGreetMessage=407455999784648704
+greetMessage=Bienvenido {user} a {guild|name}!
+[/CONFIG]
+
+//This creates a database
+[CREATE DB:verify]
+[#CONTINUE#]
+
+
+€jnverify={init}
+    {Event:Join}{protect}
+    {m?verify:{rawid}} := {rand:1000,9999}{role:Unverified}
+    {pm} $1message 
+    En <#423174802640207872>, escribe: `$cmdCaptcha {rand:1000,9999}`. De lo contrario serás expulsado del servidor.
+    {ars:#captcha1}
+/*This is the event that will start pm the user with the captcha code and it ill save it into a database. With the {ars:-} will run the next rule*/
+[#CONTINUE#]
+#captcha1={init}{arslock}
+    {sleep:3m}
+Role.Unverified?:$2messageNotCompleted {kick}
+Response.nil?:$3messageVerified {role:Ciudadano de Lugnica}{ars:#captcha2}{d?verify:{rawid}}
+/*This is the checker it has a {sleep:} so the rule will be sleeping and not doing anything till that time end. It will check if the user verified on time.*/
+[#CONTINUE#]
+
+#captcha2={init}{arslock}/*
+[IF $enableWelcomeMessage == True]
+    {redirect:$redirectGreetMessage} {msg:$greetMessage}
+[/IF]
+/*This is an optional message that can be disabled on the config section. It will redirect a mesage with the text we wrote on the confif*/*/
+[#CONTINUE#]
+
+&$cmdCaptcha {params}={init}{del}
+    String.{params} == {r?verify:{rawid}}?:$verifiedCaptcha1{ars:#cmd2captcha}
+    Response.nil?: $incorrectCaptcha
+/*This is the command the user needs to write the command we choosed in the config, space and the code*/
+[#CONTINUE#]
+
+#cmd2captcha={init}{arslock}{sleep:2m}{take:Unverified}{readnwrite:399619792631365632} usa el canal <#399619792631365632> para cualquier duda, ya sea sobre el servidor o por donde empezar a leer.
+
+Cualquier cosa que falte puede ser anadida mas tarde o modificada (semto muho lsa flatas de phornografia u.u)
+
+Primera idea, mas fiel al lore original
+-Roles normales- (pueden tenerse varios diferentes de este tipo
+
+Para abreviar solo serian el nombre dle personaje al que se es fan
+Rem
+Emilia
+ROswall
+Subaru
+Beatrize
+... (ya anadiremos mas que no me los se todos, o se pueden anadir segun la gente lo pida)
+
+-Roles de faccion- (aquellos roles de clasificacion, que no pueden tenerse mas de 1 y te clasifican en una "carpeta" o seccion especifica)
+
+Mercaderes Neutrales 
+
+Mercenarios Libres 
+
+Ciudadanos de ...
+
+Aldeanos de ...
+
+Culto de la bruja 
+
+Consejo Sabios 
+
+Visitantes de ...
+
+Caballleros de emilia 
+
+Mercenarios de Anastasia 
+
+Sirvientes de Prisicila 
+
+Ejercito de Crush 
+
+Protegidos de Felt 
+
+-Razas- (solo se puede tener 1 pero no te clasifican en ninguna carpeta o seccion)
+
+Humano (meh)
+Elfo (orejas de elfo largas, no hay ejemplo en el anime)
+Semielfo (emilia, orejas de elfo no exageradas)
+Oni (Ram y Rem, cuernos)
+Dragon (draconianos humanoides vistos en el capitulo cero)
+Furri (el capitan de los mercenarios que tiene cabeza de lobo)
+Kemonomimi (felix, solo orejas y cola de animal)
+
+(para los furris o kemonomimi con apariencia de nino como Mimi y sus hermanos no se donde ponerlos, o Furri o Kemonomimi, o quiza podria anadirse algo como "Chibi Furri")
+
+Espiritu (vease Puck o Beako)
+
+
+----------------------------------------------------------------------------------------------
+
+-Segunda idea, mas como "batalla de fans" con nombres estilo "clanes" para cada faccion de Fans- y todos serian de clasificacion, es decir, no se puede ser de 2 cosas a la vez- 
+(estos roles, si son muchos y no es posible tenerlos todos al principio, tambien se pueden ir anadiendo bajo demanda, segun aparezcan fans de un personaje u otro)
+
+Caballeros de Emilia
+
+Horda Oni de Rem (u Onis de Rem, puse horda porque literalmente es una horda de fans)
+
+Clan de Ram
+
+Cultistas de Satella
+
+Aprendices de Reinhart
+
+Adoradores de Felix
+
+Puzzle de Roswall
+
+Eruditos de Beako
+
+Pelusas de Puck
+
+Ejercito de Crush
+
+Mercenarios de Anastasia
+
+Guerreros de Garfiel
+
+Seguidores de Frederica
+
+Gremio de Otto
+
+Sirvientes de Priscilla
+
+Camaradas de Julius
+
+Tripas de Elsa
+
+Acolitos de Betelgause (o Dementes de Betelgause si gusta mas)
+
+Jinetes de Pastrasche
+
+Protegidos de Felt
+
+Clones de Lewes
+
+Colegas de Rom
+
+Demonios de Wilhelm
+
+Familia de Mimi
+
+Clientes del frutero
+
+Otakus de Subaru
+
+Companeros de Aldebaran
+
+Bestias(o galletas) de Daphne
+
+Santos de Typhon
+
+Adeptos de Sekhmet
+
+Elegidos de Minerva
+
+Amados por Carmilla
+
+Apostoles de Echidna
+
+Guardianes del Dragon
+
+---------------------
+
+Las Razas de la primera idea tambien pueden ser anadidas en la segunda
+
+
+
+
+-----------------------------
+Roles de la PRIMERA IDEA un poco explicados
+
+Mercaderes Neutrales (Mercaderes que no se mojan con la seleccion)
+
+Mercenarios Libres (se venden al mejor porstor, algunos incluso son asaltantes o ladrones, no les importan los temas politicos a no ser que tengan algo que ganar)
+
+Ciudadanos de (anadir nombre de ciudad o region, para gente que no elige aun una candidata)
+
+Aldeanos de (anadir pueblo mas pequeno, para gente que no elige aun una candidata)
+
+Culto de la bruja (ya sabemos de que va el tema)
+
+Sabios (los sabios de la selecion de las 5 candidatas, que podria ser para administradores, traductores y/o moderadores)
+
+Visitantes de (o viajeros de)(anadir pais vecino, gente que viene de fuera y ni le va ni le vienen los asuntos politicos de este pais)
+
+Caballleros de emilia (obvio, la gente que apoya a Emilia, donde estarian los de Roswall y la gente a su alrededor, incluida Rem :V)
+
+Mercenarios de Anastasia (esa panta de furris y kemonomimis chibis, o mercaderes y gente de negocios afiliados a esta candidata)
+
+Sirvientes de Prisicila (para ella todos son inferiores y hay que estar a sus pies, asi que todos son sus sirvientes)
+
+Ejercito de Crush (los guerreros que pudimos ver contra la ballena)
+
+Protegidos de Felt (la gente mas desfavorecida, o los caballeros como Reinhart que apuestan por una candidata tan caotica y fuera del "sistema")
+Cualquier cosa que falte puede ser anadida mas tarde o modificada (semto muho lsa flatas de phornografia u.u)
+
+Primera idea, mas fiel al lore original
+-Roles normales- (pueden tenerse varios diferentes de este tipo
+
+Para abreviar solo serian el nombre dle personaje al que se es fan
+Rem
+Emilia
+ROswall
+Subaru
+Beatrize
+... (ya anadiremos mas que no me los se todos, o se pueden anadir segun la gente lo pida)
+
+-Roles de faccion- (aquellos roles de clasificacion, que no pueden tenerse mas de 1 y te clasifican en una "carpeta" o seccion especifica)
+
+Mercaderes Neutrales 
+
+Mercenarios Libres 
+
+Ciudadanos de ...
+
+Aldeanos de ...
+
+Culto de la bruja 
+
+Consejo Sabios 
+
+Visitantes de ...
+
+Caballleros de emilia 
+
+Mercenarios de Anastasia 
+
+Sirvientes de Prisicila 
+
+Ejercito de Crush 
+
+Protegidos de Felt 
+
+-Razas- (solo se puede tener 1 pero no te clasifican en ninguna carpeta o seccion)
+
+Humano (meh)
+Elfo (orejas de elfo largas, no hay ejemplo en el anime)
+Semielfo (emilia, orejas de elfo no exageradas)
+Oni (Ram y Rem, cuernos)
+Dragon (draconianos humanoides vistos en el capitulo cero)
+Furri (el capitan de los mercenarios que tiene cabeza de lobo)
+Kemonomimi (felix, solo orejas y cola de animal)
+
+(para los furris o kemonomimi con apariencia de nino como Mimi y sus hermanos no se donde ponerlos, o Furri o Kemonomimi, o quiza podria anadirse algo como "Chibi Furri")
+
+Espiritu (vease Puck o Beako)
+
+
+----------------------------------------------------------------------------------------------
+
+-Segunda idea, mas como "batalla de fans" con nombres estilo "clanes" para cada faccion de Fans- y todos serian de clasificacion, es decir, no se puede ser de 2 cosas a la vez- 
+(estos roles, si son muchos y no es posible tenerlos todos al principio, tambien se pueden ir anadiendo bajo demanda, segun aparezcan fans de un personaje u otro)
+
+Caballeros de Emilia
+
+Horda Oni de Rem (u Onis de Rem, puse horda porque literalmente es una horda de fans)
+
+Clan de Ram
+
+Cultistas de Satella
+
+Aprendices de Reinhart
+
+Adoradores de Felix
+
+Puzzle de Roswall
+
+Eruditos de Beako
+
+Pelusas de Puck
+
+Ejercito de Crush
+
+Mercenarios de Anastasia
+
+Guerreros de Garfiel
+
+Seguidores de Frederica
+
+Gremio de Otto
+
+Sirvientes de Priscilla
+
+Camaradas de Julius
+
+Tripas de Elsa
+
+Acolitos de Betelgause (o Dementes de Betelgause si gusta mas)
+
+Jinetes de Pastrasche
+
+Protegidos de Felt
+
+Clones de Lewes
+
+Colegas de Rom
+
+Demonios de Wilhelm
+
+Familia de Mimi
+
+Clientes del frutero
+
+Otakus de Subaru
+
+Companeros de Aldebaran
+
+Bestias(o galletas) de Daphne
+
+Santos de Typhon
+
+Adeptos de Sekhmet
+
+Elegidos de Minerva
+
+Amados por Carmilla
+
+Apostoles de Echidna
+
+Guardianes del Dragon
+
+---------------------
+
+Las Razas de la primera idea tambien pueden ser anadidas en la segunda
+
+
+
+
+-----------------------------
+Roles de la PRIMERA IDEA un poco explicados
+
+Mercaderes Neutrales (Mercaderes que no se mojan con la seleccion)
+
+Mercenarios Libres (se venden al mejor porstor, algunos incluso son asaltantes o ladrones, no les importan los temas politicos a no ser que tengan algo que ganar)
+
+Ciudadanos de (anadir nombre de ciudad o region, para gente que no elige aun una candidata)
+
+Aldeanos de (anadir pueblo mas pequeno, para gente que no elige aun una candidata)
+
+Culto de la bruja (ya sabemos de que va el tema)
+
+Sabios (los sabios de la selecion de las 5 candidatas, que podria ser para administradores, traductores y/o moderadores)
+
+Visitantes de (o viajeros de)(anadir pais vecino, gente que viene de fuera y ni le va ni le vienen los asuntos politicos de este pais)
+
+Caballleros de emilia (obvio, la gente que apoya a Emilia, donde estarian los de Roswall y la gente a su alrededor, incluida Rem :V)
+
+Mercenarios de Anastasia (esa panta de furris y kemonomimis chibis, o mercaderes y gente de negocios afiliados a esta candidata)
+
+Sirvientes de Prisicila (para ella todos son inferiores y hay que estar a sus pies, asi que todos son sus sirvientes)
+
+Ejercito de Crush (los guerreros que pudimos ver contra la ballena)
+
+Protegidos de Felt (la gente mas desfavorecida, o los caballeros como Reinhart que apuestan por una candidata tan caotica y fuera del "sistema")
+
+€join={init}
+{Event:Join}{ars:#join}
+{redirect:385465060312481814}
+{/user} has joined with  {invcode}  invite code by{invowner}
+[#CONTINUE#]
+
+#join={init}{ars:#join1}
+                                    {m?join:{rawid}---user} := {user}
+                                    {m?join:{rawid}---nick} := {usernick}
+                                    {m?join:{rawid}--rawid} := {rawid}
+    String.{invcode} == uB3chKj?:   {m?join:{rawid}-joined} := Cualquier lado
+    String.{invcode} == GYuvdRC?:   {m?join:{rawid}-joined} := Twitch{role:TwitchViewer}
+    Response.nil?:                  {m?join:{rawid}-joined} := Se ha unido con la invitación {invcode}  creada por {invowner}
+    
+[#CONTINUE#]
+#join1={init}
+    {redirect:385465060312481814}
+    {embed:
+        {title:Nuevo Miembro}
+        {color:#00fc1d}
+        {field[0]|name:Información básica}
+            {field[0]|value:
+            -------------------------------------------
+            Nombre:             {r?join:{rawid}---user}
+            Nick actual:        {r?join:{rawid}---nick}
+            ID:                       {r?join:{rawid}--rawid}}
+        {field[1]|name:Viene de}
+            {field[1]|value:
+
+            -------------------------------------------
+            {r?join:{rawid}-joined}}
+        
+    }
+    {ars:#joinpm}
+[#CONTINUE#]
+#joinpm={init}
+{pm} ----------------------------------------------------------------------------------------------------------
+{/user} Bienvenido a mi servidor.
+Para poder chatear o participar debes darte un rol dependiendo de la lengua que hables, escribe: &role_es para asignarte el rol.
+
+{/user} Welcome to my server.
+If you want to be able to chat you must write: &role_en in order to assign yourself the english role
+
+----------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+
+css
+----------------------------------------------------------------------------------------------------------
+
+En el canal #juegos-gratis_free-games  se publican juegos que estan disponibles durante un tiempo GRATIS para que puedas ir a comprarlos, repito GRATIS
+----------------------------------------------------------------------------------------------------------
+In the channel #juegos-gratis_free-games  are posted games that are aviable for FREE, either in steam or any other. yes, FREE
+
+----------------------------------------------------------------------------------------------------------
+----------------------------------------------------------------------------------------------------------
+
+Si quieres participar en el chat de un juego especifico no dudes en pedirselo a algun @ADM o a mi mismo @The Promidius#9496 
+----------------------------------------------------------------------------------------------------------
+If you want to be able to chat in a specific game chat just ask for the role of the game to any @ADM or even to me @The Promidius#9496
+----------------------------------------------------------------------------------------------------------
+Mira el siguiente vídeo de presentación: Guía presentación de mi servidor de Discord
+https://www.youtube.com/watch?v=ELhrWj_Rq0s
+[INFO]
+##Follow all the instructions to configure your captcha snippet correctly
+##Must say that when writing "True" or "False" is cap sensitive
+[/INFO]
+
+
+[CONFIG]
+//1. ENABLE FEAUTURES
+//### THIS DONT WORK###
+            //Message once user is verified. For example a welcome message on general channel| Write "True" to enable or "False" to disable
+            //enableWelcomeMessage=True
+
+//2. CHANGE CONFIG
+//Instruction message its the first message that the user gets and also includes the captcha
+1message=Welcome {/user} you are required to type a captcha in the next 3 minutes.
+
+//Select the command the user needs to write to get verified. By default is ".captcha" but you can change it
+cmdCaptcha=.captcha
+//Message (pm) to user once captcha is verified. (recommended to explain that they have to wait more or less 3 minutes to get fully verified)
+verifiedCaptcha1=Thank you for verifying with `eCAPTCHA` Please wait while we transfer you from `Unverified` to `Member`. This could take up to 2 minutes.. 
+
+//Message if captcha is not well spelt. (suggest to add that they have to try again)
+incorrectCaptcha=Verification code is incorrect. Please try again.
+
+//Message if the catcha is not completed on time 
+2messageNotCompleted={/user} you failed to type the captcha Goodbye!
+3messageVerified=You succesfully verified if you can't see any channel contact ADM 
+//###<IGNORE THIS>###
+            //Message once use is verified. For example a welcome message on general channel
+            //redirectGreetMessage=407455999784648704
+            //greetMessage=Welcome {user} to {guild|name}
+//###</IGNORE THIS>###
+[/CONFIG]
+
+//This creates a database
+[CREATE DB:verify]
+[#CONTINUE#]
+
+
+€jnverify={init}
+    {Event:Join}{protect}
+    {m?verify:{rawid}} := {rand:1000,9999}{role:Unverified}
+    {pm} $1message 
+    In our general channel please type `$cmdCaptcha {rand:1000,9999}`. If you don't you will be kicked from the server.{/pm}
+    {ars:#captcha1}
+/*This is the event that will start pm the user with the captcha code and it ill save it into a database. With the {ars:-} will run the next rule*/
+[#CONTINUE#]
+#captcha1={init}{arslock}
+    {sleep:3m}
+Role.Unverified?:$2messageNotCompleted {kick}
+Response.nil?:$3messageVerified {role:Members}{ars:#captcha2}{d?verify:{rawid}}
+/*This is the checker it has a {sleep:} so the rule will be sleeping and not doing anything till that time end. It will check if the user verified on time.*/
+[#CONTINUE#]
+
+#captcha2={init}{arslock} /*           THIS SHIT NOT WORKING
+[IF $enableWelcomeMessage == True]
+    {redirect:$redirectGreetMessage} {msg:$greetMessage}
+[/IF]
+/*This is an optional message that can be disabled on the config section. It will redirect a mesage with the text we wrote on the confif*/
+*/[#CONTINUE#]
+
+&$cmdCaptcha {params}={init}{del}
+    String.{params} == {r?verify:{rawid}}?:$verifiedCaptcha1{ars:#cmd2captcha}
+    Response.nil?: $incorrectCaptcha
+/*This is the command the user needs to write the command we choosed in the config, space and the code*/
+[#CONTINUE#]
+
+#cmd2captcha={init}{arslock}{sleep:2m}{take:Unverified}
