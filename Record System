@@ -1,0 +1,369 @@
+#listadorecordsTDM={init}{arslock}
+    {embed:
+        {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+        {title:Records de TDM}
+        {field[0]|name:Puntuación}          {field[0]|value:{r?records:Valor---TDM-P}     {r?records:Miembro-TDM-P}}
+        {field[1]|name:Daño}                {field[1]|value:{r?records:Valor---TDM-D}     {r?records:Miembro-TDM-D}}
+        {field[2]|name:Curación}            {field[2]|value:{r?records:Valor---TDM-C}     {r?records:Miembro-TDM-C}}
+        {field[3]|name:Kills}               {field[3]|value:{r?records:Valor---TDM-K}     {r?records:Miembro-TDM-K}}
+        {field[4]|name:Asistencias}         {field[4]|value:{r?records:Valor---TDM-A}     {r?records:Miembro-TDM-A}}
+        {field[5]|name:KDA}                 {field[5]|value:{r?records:Valor---TDM-KDA}   {r?records:Miembro-TDM-KDA}}
+        {field[6]|name:Manejo de Daño}      {field[6]|value:{r?records:Valor---TDM-MD}    {r?records:Miembro-TDM-MD}
+
+{r?records:ultimamodificacion}
+-------------------------------------
+[Click para ver todos los records](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing)
+        {footer|text:Usa .records <TDM> <P|D|C|K|A|O|MD|KDA> para obtener mas info sobre un record específico}
+    }
+
+[#CONTINUE#]
+&.KDA {params}={init}
+    {split: }
+    {math:({/p0}+ ({/p2}/2) )/({/p1}+1)}
+
+[#CONTINUE#]
+&.records {params}={init}
+    use | spamming_bots | echo-test
+    {if(ischannel):
+    {split: }
+    {m?records:Variableinutil} := {/p0}
+    {m?records:Variableinutil2} := {/p1}
+    ParamRegex.((BA|TDM)\s(P|D|C|K|A|O|MD|KDA))?:{ars:#records}
+    Params.BA?:{ars:#listadorecordsBA}
+    Params.TDM?:{ars:#listadorecordsTDM}
+    Response.nil?:Utiliza .records <BA|TDM> <P|D|C|K|A|O|MD|KDA> (ten en cuenta mayus)
+    }
+
+[#CONTINUE#]
+.coloresclan={init}
+use | echo-test | spamming_bots | taller_del_clan
+{if(ischannel):
+    {embed:
+        {title:Colores del Clan}
+        {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+        {field[0]|name:Color Primario}
+            {field[0]|value:Negro o Gris si no tienes Premium}
+        {field[1]|name:Color Secundario}
+            {field[1]|value:Arena o Blanco si no tienes Premium
+            
+Con una bandera española pintada
+            }
+        
+        {image|url:https://cdn.discordapp.com/attachments/167938091976228864/355101403162869761/Maniki_1.png}
+        {footer|text:Diseñador: Firebird76}
+    }
+}
+[#CONTINUE#]
+.compendio={init}
+    Role.Oficial?:{ars:#compendiooficiales}
+    Role.Miembro?:{ars:#compendio}
+    Role.Recluta?:No tienes permiso para acceder a ese comando. Contacta con algún oficial.
+    Response.nil?:No tienes permiso para acceder a ese comando. Contacta con algún oficial.
+
+[#CONTINUE#]
+#ayudamiembrorecluta={init}{arslock}
+    {embed:
+            {title:Lista de comandos}
+            {field[0]|name:Ver records (general)}
+                {field[0]|value:.records <BA|TDM>}
+            {field[1]|name:Ver records (específico)}
+                {field[1]|value:
+                .records <BA|TDM> <P|D|C|K|A|O|MD|KDA>
+                P: Puntuación
+                D: Daño
+                C: Curación
+                K: Kills
+                A: Asistencias
+                O: Objetivos
+                MD: Manejador de Daño
+                KDA: KDA}
+            {field[2]|name:Combrobar si es record}
+                {field[2]|value:
+                ?record <BA|TDM> <P|D|C|K|A|O|MD|KDA> <valor>
+                P: Puntuación
+                D: Daño
+                C: Curación
+                K: Kills
+                A: Asistencias
+                O: Objetivos
+                MD: Manejador de Daño
+                KDA: KDA}
+            {field[3]|name:Calcular KDA}
+                {field[3]|value:.KDA <Kills> <Muertes> <Asistencias>}
+            {field[4]|name:Calcular Manejo de Daño}
+                {field[4]|value:.MD  <Daño> <Curación>}
+            {field[5]|name:Ver el compendio}
+                {field[5]|value:.compendio}
+            
+                
+        }
+    }
+
+[#CONTINUE#]
+#compendio={init}{arslock}
+        {embed:{color:#ff0000}
+            {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+            {title:Lista de enlaces}
+            {field[0]|name:Información sobre Robocraft}
+            {field[0]|value:
+    - [Hoja de calculo con datos del juego](http://robocraftgame.com/forums/topic/updated-robocraft-spreadsheet/ "Click para ir a la hoja de calculo con datos del juego") 
+    - [Lista prioridad de compra de items ](https://docs.google.com/document/d/1oamQ-fabRcqm5VJTP5Owc4D-dde2mZq3sLX6l-vDwjM/edit?usp=sharing "Click para ver la prioridad de compra para items")
+    - [Lista de Bots aprobados para competitivo](https://docs.google.com/document/d/1j1-nuDYWjEzytRHgYJORdHAEHXubs0QoxNPW5Htk8oA/edit?usp=sharing "Ver los bots recomendados y aprovados para competitivo")
+    - [Descripción del modo Comandante](https://docs.google.com/document/d/1aivTRp3sbH1xSFiIvBS4GnXQE6Yw4Iw_FA_Eo5VKAjM/edit?usp=sharing "Aprende a jugar el modo comandante")
+    }       {field[1]|name:Información sobre Robocraft Spain}
+            {field[1]|value:
+    - [Récords del clan](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing "Click para ver la hoja de calculo con los records")
+    - [Robocraft Spain en Youtube](https://www.youtube.com/channel/UCLyWO-eg7dQ5z3qSH3BV__Q "Click para ir a youtube")
+    - [(TEAM) Titularidad TEAM](https://docs.google.com/spreadsheets/d/1uQFaPfvovqJjfb_Id2_7Cqa3HIOGpdgUC5Ukn1jS1Ck/edit?usp=sharing "Click para ver")
+    - [Formulario para optar al rol TEAM](https://docs.google.com/forms/d/e/1FAIpQLSdPm9FaEFo5qSksxZpLvkEtHM4NqJiHXPPLKl-rnx8DvoUx3g/viewform "Click para ver el formulario")
+    - [Normativa Externa](https://docs.google.com/document/d/14I3Bi4eU8P46IePwTg0ZIE59xfq6bDHn-qUkU7ZfbKU/edit "Click para ver la normativa externa")
+    - [Normativa Interna](https://docs.google.com/document/d/1-9cSs0uD8zK411G0tIRLXZpF9EPW4XVUAZYwuD-fFWI/edit "Click para ver la normativa interna")    
+    - [Doctrinas de combate](https://docs.google.com/document/d/1Q6gOY6uPJ6Co8uP0NSfGByFEV53U3Zw0bVqly6fzIgQ/edit)}}
+
+[#CONTINUE#]
+#editar2={init}{arslock}
+    Timezone.Europe/Madrid?
+    {m?records:Nombre--{/p0}-{/p1}} := {/p1}
+    {m?records:Valor---{/p0}-{/p1}} := {/p2}
+    {m?records:Miembro-{/p0}-{/p1}} := {/p3}
+    {m?records:Fecha---{/p0}-{/p1}} := {/p4}
+    {m?records:Link----{/p0}-{/p1}} := {/p5}
+    {m?records:ultimamodificacion} := {timestamp:Modificado el: 02/01/06  03:04}
+
+
+[#CONTINUE#]
+#listadorecords={init}
+{arslock}
+{embed:
+{thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+{title:Records de Battle Arena / Liga}
+{field[0]|name:Puntuación}{field[0]|value:{r?records:Valor---BA-P}  {r?records:Miembro-BA-P}}
+{field[1]|name:Daño}{field[1]|value:{r?records:Valor---BA-D}  {r?records:Miembro-BA-D}}
+{field[2]|name:Curación}{field[2]|value:{r?records:Valor---BA-C}  {r?records:Miembro-BA-C}}
+{field[3]|name:Kills}{field[3]|value:{r?records:Valor---BA-K}  {r?records:Miembro-BA-K}}
+{field[4]|name:Asistencias}{field[4]|value:{r?records:Valor---BA-A}  {r?records:Miembro-BA-A}}
+{field[5]|name:Objetivos}{field[5]|value:{r?records:Valor---BA-O}  {r?records:Miembro-BA-O}}
+{field[6]|name:KDA}{field[6]|value:{r?records:Valor---BA-KDA}  {r?records:Miembro-BA-KDA}}
+{field[7]|name:Manejo de Daño}{field[7]|value:{r?records:Valor---BA-MD}  {r?records:Miembro-BA-MD}
+
+[Click para ver todos los records](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing)}
+{footer|text:Usa .records <BA> <P|D|C|K|A|O|MD|KDA> para obtener mas info sobre un record específico
+}
+}
+
+[#CONTINUE#]
+#recordsTDM={init}{arslock}
+    {embed:
+        {type:rich}
+        String.{/p1} == P?:{title:Record de Puntuación en TDM}              {field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}    {field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}     {field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+        String.{/p1} == D?:{title:Record de Daño en TDM}                    {field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}    {field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}     {field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+        String.{/p1} == C?:{title:Record de Curacion en TDM}                {field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}    {field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}     {field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+        String.{/p1} == K?:{title:Record de Kills en TDM}                   {field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}    {field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}     {field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+        String.{/p1} == A?:{title:Record de Asistencias en TDM}             {field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}    {field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}     {field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+        String.{/p1} == KDA?:{title:Record de KDA TDM}                      {field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}    {field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}     {field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+        String.{/p1} == MD?:{title:Record de Manejador de Daño en TDM}      {field[0]|name:Valor}{field[0]|value:{r?records:Valor---TDM-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-TDM-{/p1}}}    {field[2]|name:Fecha}{field[2]|value:{r?records:Fecha---TDM-{/p1}}}     {field[3]|name:Captura}{field[3]|value:[Click para ver imagen]({r?records:Link----TDM-{/p1}})}
+    
+        
+    }
+
+[#CONTINUE#]
+.comandos={init}
+    Role.Oficial?:{ars:#ayudaoficial}
+    Role.Miembro?:{ars:#ayudamiembrorecluta}
+    Role.Recluta?:{ars:#ayudamiembrorecluta}
+    Response.nil?:Error
+
+[#CONTINUE#]
+#ayudaoficial={init}{arslock}
+    {embed:
+        {title:Lista de comandos administrativos}
+        {field[0]|name:Editar record}
+            {field[0]|value:.editar <BA|TDM> <P|D|C|K|A|O|MD|KDA> <Valor> <nombre> <menvión> <fecha> <enlace>}
+
+        {field[1]|name:Ver records (general)}
+            {field[1]|value:.records <BA|TDM>}
+
+        {field[2]|name:Ver records (específico)}
+            {field[2]|value:
+            .records <BA|TDM> <P|D|C|K|A|O|MD|KDA>
+            P: Puntuación
+            D: Daño
+            C: Curación
+            K: Kills
+            A: Asistencias
+            O: Objetivos
+            MD: Manejador de Daño
+            KDA: KDA}
+        {field[3]|name:Combrobar si es record}
+                {field[3]|value:
+                ?record <BA|TDM> <P|D|C|K|A|O|MD|KDA> <valor>
+                P: Puntuación
+                D: Daño
+                C: Curación
+                K: Kills
+                A: Asistencias
+                O: Objetivos
+                MD: Manejador de Daño
+                KDA: KDA}
+        {field[4]|name:Calcular KDA}
+            {field[4]|value:.KDA <Kills> <Muertes> <Asistencias>}
+        {field[5]|name:Calcular Manejo de Daño}
+            {field[5]|value:.MD  <Daño> <Curación>}
+        {field[6]|name:Ver el compendio}
+            {field[6]|value:.compendio}
+        {field[7]|name:Ver el compendio}
+            {field[7]|value:!roll <número> <nada(recomedado)>}
+        {footer|text:Comandos para Oficiales}
+
+    }
+[#CONTINUE#]
+#checkrecord={init}
+    Count.{/p2} == {r?records:Valor---{/p0}-{/p1}}?:Has empatado, según la normativa, se mantiene el record anterior  de {r?records:Miembro-{/p0}-{/p1}}  ({r?records:Valor---{/p0}-{/p1}})
+    Count.{/p2} >= {r?records:Valor---{/p0}-{/p1}}?:Enhorabuena, has superado el anterior record ({r?records:Valor---{/p0}-{/p1}})
+    Response.nil?:No has superado ningun record.
+
+[#CONTINUE#]
+#editar1={init}
+{arslock}
+    {redirect:167938091976228864}{ars:#editar2}
+    String.{/p1} == P?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} puntos le arrebata el record de **puntuación** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
+    String.{/p1} == D?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} de daño le arrebata el record de **Daño** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
+    String.{/p1} == C?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} de curación le arrebata el record de **Curación** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
+    String.{/p1} == K?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} kills le arrebata el record de **Kills** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
+    String.{/p1} == A?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} asistencias le arrebata el record de **Asistencias** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
+    String.{/p1} == O?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} objetivos le arrebata el record de **Objetivos** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
+    String.{/p1} == MD?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} puntos le arrebata el record de manejador de **Daño** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0} 
+    String.{/p1} == KDA?:{r?records:Miembro-{/p0}-{/p1}} con {/p2} puntos le arrebata el record de **KDA** a {r?records:Miembro-{/p0}-{/p1}} con {r?records:Valor---{/p0}-{/p1}} en {/p0}
+[#CONTINUE#]
+#listadorecordsBA={init}{arslock}
+    {embed:
+        {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+        {title:Records de Battle Arena / Liga}
+        {field[0]|name:Puntuación}                      {field[0]|value:{r?records:Valor---BA-P}  {r?records:Miembro-BA-P}}
+        {field[1]|name:Daño}                            {field[1]|value:{r?records:Valor---BA-D}  {r?records:Miembro-BA-D}}
+        {field[2]|name:Curación}                        {field[2]|value:{r?records:Valor---BA-C}  {r?records:Miembro-BA-C}}
+        {field[3]|name:Kills}                           {field[3]|value:{r?records:Valor---BA-K}  {r?records:Miembro-BA-K}}
+        {field[4]|name:Asistencias}                     {field[4]|value:{r?records:Valor---BA-A}  {r?records:Miembro-BA-A}}
+        {field[5]|name:Objetivos}                       {field[5]|value:{r?records:Valor---BA-O}  {r?records:Miembro-BA-O}}
+        {field[6]|name:KDA}                             {field[6]|value:{r?records:Valor---BA-KDA}{r?records:Miembro-BA-KDA}}
+        {field[7]|name:Manejo de Daño}                  {field[7]|value:{r?records:Valor---BA-MD}  {r?records:Miembro-BA-MD}
+
+{r?records:ultimamodificacion}
+-------------------------------------
+[Click para ver todos los records](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing)}
+    {footer|text:Usa .records <BA> <P|D|C|K|A|O|MD|KDA> para obtener mas info sobre un record específico}
+    }
+
+[#CONTINUE#]
+&.MD {params}={init}
+    {split: }
+    {math:({/p0}+{/p1})*0.5+({/p0}+{/p1})*(1-({/p0}-{/p1})/({/p0}+{/p1}))}
+
+[#CONTINUE#]
+&.editar {params}={init}
+    use | Oficial
+    {if(hasrole):
+        {split: }
+        {m?records:Variableinuti5} := {/p0}
+        {m?records:Variableinutil6} := {/p1}
+        {m?records:editaruser} := {rawid}
+        ParamRegex.((BA|TDM)\s(P|D|C|K|A|O|MD|KDA)\s({/p2})\s({/p3})\s{/p4}\s({/p5}))?:{ars:#editar1}Record editado correctamente{del:10s}
+        Response.nil?:Error, usa .editar <BA|TDM> <P|D|C|K|A|O|MD|KDA> <valor> <nombre del miembro> <mencion al miembro> <fecha (formato: D/M/A)> <link a la captura>
+    } (else) {
+        {del:5s}No tienes permiso para ejecutar este comando. Escribe ' .comandospara ver los comandos que puedes ejecutar.}
+[#CONTINUE#]
+.auto #compendio={init}{arslock}
+
+    {embed:
+        {color:#ff0000}
+        {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+        {title:Lista de enlaces}
+        {field[0]|name:Información sobre Robocraft}
+        {field[0]|value:
+- [Hoja de calculo con datos del juego](http://robocraftgame.com/forums/topic/updated-robocraft-spreadsheet/ "Click para ir a la hoja de calculo con datos del juego") 
+- [Lista prioridad de compra de items ](https://docs.google.com/document/d/1oamQ-fabRcqm5VJTP5Owc4D-dde2mZq3sLX6l-vDwjM/edit?usp=sharing "Click para ver la prioridad de compra para items")
+- [Lista de Bots aprobados para competitivo](https://docs.google.com/document/d/1j1-nuDYWjEzytRHgYJORdHAEHXubs0QoxNPW5Htk8oA/edit?usp=sharing "Ver los bots recomendados y aprovados para competitivo")
+- [Descripción del modo Comandante](https://docs.google.com/document/d/1aivTRp3sbH1xSFiIvBS4GnXQE6Yw4Iw_FA_Eo5VKAjM/edit?usp=sharing "Aprende a jugar el modo comandante")
+}{field[1]|name:Información sobre Robocraft Spain}
+{field[1]|value:
+- [Récords del clan](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing "Click para ver la hoja de calculo con los records")
+- [Robocraft Spain en Youtube](https://www.youtube.com/channel/UCLyWO-eg7dQ5z3qSH3BV__Q "Click para ir a youtube")
+- [(TEAM) Titularidad TEAM](https://docs.google.com/spreadsheets/d/1uQFaPfvovqJjfb_Id2_7Cqa3HIOGpdgUC5Ukn1jS1Ck/edit?usp=sharing "Click para ver")
+- [Formulario para optar al rol TEAM](https://docs.google.com/forms/d/e/1FAIpQLSdPm9FaEFo5qSksxZpLvkEtHM4NqJiHXPPLKl-rnx8DvoUx3g/viewform "Click para ver el formulario")
+- [Normativa Externa](https://docs.google.com/document/d/14I3Bi4eU8P46IePwTg0ZIE59xfq6bDHn-qUkU7ZfbKU/edit "Click para ver la normativa externa")
+- [Normativa Interna](https://docs.google.com/document/d/1-9cSs0uD8zK411G0tIRLXZpF9EPW4XVUAZYwuD-fFWI/edit "Click para ver la normativa interna")    
+- [Doctrinas de combate](https://docs.google.com/document/d/1Q6gOY6uPJ6Co8uP0NSfGByFEV53U3Zw0bVqly6fzIgQ/edit)}}
+
+
+
+[#CONTINUE#]
+#compendiooficiales={init}{arslock}
+    use | mesa_redonda | echo-test
+    {if(ischannel):
+        {embed:
+            {thumb|url:https://cdn.discordapp.com/attachments/370681286815252481/406990352206266368/robocraftspain.png}
+            {title:Lista de enlaces}
+            {field[0]|name:Compendio Oficiales }
+            {field[0]|value:
+    - [Compendio Oficiales Original](https://docs.google.com/document/d/1399uAYjwocVOLFuvCfHIaPNbMDxdArZWtc03zZks-zg)}
+            {field[1]|name:Normativas}
+            {field[1]|value:
+    - [Normativa Externa](https://docs.google.com/document/d/14I3Bi4eU8P46IePwTg0ZIE59xfq6bDHn-qUkU7ZfbKU/edit "Click para ver la normativa externa")
+    - [Normativa Interna](https://docs.google.com/document/d/1-9cSs0uD8zK411G0tIRLXZpF9EPW4XVUAZYwuD-fFWI/edit "Click para ver la normativa interna")    
+    - [Normativa Oficiales](https://docs.google.com/document/d/1mQSuW-pvMvrcvF0oLSVT4J00_PNsYRItlzm_bs5FL4Q/ "Click para ver la normativa de oficiales")}       
+            {field[2]|name:Candidaturas}
+            {field[2]|value:
+    - [Excel con solicitudes de candidatura](https://docs.google.com/spreadsheets/d/17S8oTYGs-bJEuUhRMt3OzK1hwzbmuJJxa7H_benS9tw "Click para ver las solicitudes")
+    - [Enlace al formulario de solicitudes de candidatura](https://docs.google.com/forms/d/1NVVDHaGq0_sA9W1KcHtC2gGyY-N6zIh8nwpJkkrZvn8 "Click para ver el formulario de solicitudes de candidatura")
+            }
+            {field[3]|name:Compendio Miembros}
+            {field[3]|value:
+    - [Editar Compendio Miembros](https://docs.google.com/document/d/1qXhvHkJ19CG_tI5WiXJxjGp7yNUqbrRAlybjFwLy6tE "Click para editar el compendio de miembros"
+    - [Hoja de calculo con datos del juego](http://robocraftgame.com/forums/topic/updated-robocraft-spreadsheet/ "Click para ir a la hoja de calculo con datos del juego") 
+    - [Lista prioridad de compra de items ](https://docs.google.com/document/d/1oamQ-fabRcqm5VJTP5Owc4D-dde2mZq3sLX6l-vDwjM/edit?usp=sharing "Click para ver la prioridad de compra para items")
+    - [Lista de Bots aprobados para competitivo](https://docs.google.com/document/d/1j1-nuDYWjEzytRHgYJORdHAEHXubs0QoxNPW5Htk8oA/edit?usp=sharing "Ver los bots recomendados y aprovados para competitivo")
+    - [Descripción del modo Comandante](https://docs.google.com/document/d/1aivTRp3sbH1xSFiIvBS4GnXQE6Yw4Iw_FA_Eo5VKAjM/edit?usp=sharing "Aprende a jugar el modo comandante")
+            }
+            {field[4]|name:Información sobre el clan Robocraft Spain}
+            {field[4]|value:
+    - [Récords del clan](https://docs.google.com/spreadsheets/d/1bVaPdqD0u4HtOw9WoE9VQlrMH-Ll4LFV7bOHmev2kEI/edit?usp=sharing "Click para ver la hoja de calculo con los records")
+    - [Robocraft Spain en Youtube](https://www.youtube.com/channel/UCLyWO-eg7dQ5z3qSH3BV__Q "Click para ir a youtube")
+    - [(TEAM) Titularidad TEAM](https://docs.google.com/spreadsheets/d/1uQFaPfvovqJjfb_Id2_7Cqa3HIOGpdgUC5Ukn1jS1Ck/edit?usp=sharing "Click para ver")
+    - [Formulario para optar al rol TEAM](https://docs.google.com/forms/d/e/1FAIpQLSdPm9FaEFo5qSksxZpLvkEtHM4NqJiHXPPLKl-rnx8DvoUx3g/viewform "Click para ver el formulario")
+    - [Doctrinas de combate](https://docs.google.com/document/d/1Q6gOY6uPJ6Co8uP0NSfGByFEV53U3Zw0bVqly6fzIgQ/edit)
+            }
+        }
+    }
+    (else) {No puedes usar este comando aqui. Usalo en #mesaredonda}
+
+[#CONTINUE#]
+#records={init}{arslock}
+    String.{/p0} == BA?:{ars:#recordsBA}
+    String.{/p0} == TDM?:{ars:#recordsTDM}
+
+[#CONTINUE#]
+#recordsBA={init}{arslock}
+    {embed:
+    {color:#ff0000}
+    {type:rich}
+        String.{/p1} == P?:{title:Record de Puntuación en {/p0}}            {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+        String.{/p1} == D?:{title:Record de Daño en {/p0}}                  {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+        String.{/p1} == C?:{title:Record de Curacion en {/p0}}              {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+        String.{/p1} == K?:{title:Record de Kills en {/p0}}                 {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+        String.{/p1} == A?:{title:Record de Asistencias en {/p0}}           {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+        String.{/p1} == O?:{title:Record de Objetivos en {/p0}}             {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+        String.{/p1} == KDA?:{title:Record de KDA {/p0}}                    {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+        String.{/p1} == MD?:{title:Record de Manejador de Daño en {/p0}}    {field[0]|name:Valor}{field[0]|value:{r?records:Valor---{/p0}-{/p1}}}   {field[1]|name:Miembro:}{field[1]|value:{r?records:Miembro-{/p0}-{/p1}}}    {field[2]|name:Fecha}   {field[2]|value:{r?records:Fecha---{/p0}-{/p1}}}       {field[3]|name:Captura} {field[3]|value:[Click para ver imagen]({r?records:Link----{/p0}-{/p1}})}
+    }
+
+[#CONTINUE#]
+&?record {params}={init}
+    use | spamming_bots | echo-test
+    {if(ischannel):
+        {split: }
+        {m?records:Variableinuti10} := {/p0}
+        {m?records:Variableinutil1} := {/p1}
+        ParamRegex.((BA|TDM)\s(P|D|C|K|A|O|MD|KDA)\s({/p2}))?:{ars:#checkrecord}
+        Response.nil?:Error, usa `?record <BA|TDM> <P|D|C|K|A|O|MD|KDA> <valor>`
+    }
+
