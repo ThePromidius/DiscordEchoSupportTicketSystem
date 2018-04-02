@@ -1,0 +1,91 @@
+&.bugreport {params}={init}{ars:#bugreport1}
+{e?ticketid:bugticket(+1)}
+Your bug has been recieved. The developer team will work on it.
+{delme:20s}{del:5s}
+
+[#CONTINUE#]
+#bugreport1={init}{arslock}{ars:#bugreport2}
+    {m?bugs:{r?ticketid:bugticket}} :=
+[#CONTINUE#]
+#bugreport2={init}{arslock}{ars:#ifmedia}
+    {redirect:392411283636486155}
+    Timezone.Europe/Luxembourg? 
+    
+    {la?bugs:{r?ticketid:bugticket}({params},{timestamp:02-01-2006   [03:04]})}
+    {embed:{type:rich}
+        {title: New bug report by {/user}}
+        {color:
+            {randlist:#ff0000,#ff6600}}
+        {field[0]|name:Bug description:}
+        {field[0]|value:{params}}
+        {field[1]|name:Date:}
+            {field[1]|value:{timestamp:02-01-2006   [03:04]  PM}}
+        {field[2]|name:Bug ID:}
+            {field[2]|value:{r?ticketid:bugticket}}
+    [#CONTINUE#]
+
+#ifmedia={init}{arslock}{ars:#HasRep}
+{la?bugs:{r?ticketid:bugticket}({timestamp:02-01-2006   [03:04]})}
+    **If you have media (screenshots, links to videos, crash reports, etc...) write `.bugmedia` so a channel where you can upload it is enabled to you.**
+    [#CONTINUE#]
+
+#HasRep={init}{arslock}
+    DB:rep.{rawid}?:{ars:#addRep}
+    Response.nil?:{ars:#createUserRepP}
+    [#CONTINUE#]
+
+#createUserRepP={init}{arslock}{ars:#addRep}
+    {m?rep:{rawid}} := 0
+    [#CONTINUE#]
+
+#addRep={init}{arslock}{ars:#CountRep}
+    {e?rep:{rawid}(+5)}
+    {user}, you have been awardnered with 5+ rep for your help.{delme:5s}
+    [#CONTINUE#]
+
+#CountRep={init}{arslock}
+    
+    Count.{r?rep:{rawid}} >= 20?:{role:Tester}{ars:#CountRep2}
+    Response.nil?: You need {math:20-{r?rep:{rawid}}}{delme:10s} points more to earn Tester role{ars:#instructions}
+    [#CONTINUE#]
+
+#CountRep2={init}{ars:#instructions}{clear:10}
+    Timezone.Europe/Luxembourg? 
+    {m?testers:{timestamp:02/01/2006-03:04}} := {rawid},{user},{self}
+    [#CONTINUE#]
+
+#instructions={init}{arslock}
+    {sleep:20s}Write   .bugreport <bug description>  to post a bug /glitch /crash.
+    [#CONTINUE#]
+
+.bugmedia={init}
+    {del}
+    {redirect:402537163004051467}{readnwrite:402537163004051467}
+    {user} post here the media then write `.done`
+    Media Linked to (ticket ID): {r?ticketid:bugticket}
+    [#CONTINUE#]
+
+&.bugsolved {params}={init}
+    {del}{req:Developer}{redirect:377058360052416523}
+    {msg:Bug with ID: {params} has been solved}
+    {embed:{type:rich}
+        {title: New bug solved:}
+        {color:#5BFF33}
+        {field[0]|name:Bug description:}
+        {field[0]|value:{r?bugs:{params}--Desc}}
+        {field[1]|name:Date:}
+        {field[1]|value:{r?bugs:{params}--Time}}
+        {footer|text:Bug ID: {math:{r?ticketid:bugticket}-1}}
+    }
+    [#CONTINUE#]
+
+&.resetrep {params}={init}
+    {req:ADM}{d?rep:{params}}
+    [#CONTINUE#]
+
+.resetticketid={init}
+    {req:ADM}
+    {m?ticketid:bugticket} := 0
+    [#CONTINUE#]
+
+
