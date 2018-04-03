@@ -1,16 +1,16 @@
 &.bugreport {params}={init}{ars:#bugreport1}
-{e?ticketid:bugticket(+1)}
+{.bugid++}
 Your bug has been recieved. The developer team will work on it.
 {delme:20s}{del:5s}
 
 [#CONTINUE#]
 #bugreport1={init}{arslock}{ars:#bugreport2}
-    {m?bugs:{r?ticketid:bugticket}} :=
+    {m?bugs:{.bugid}} :=
     [#CONTINUE#]
 #bugreport2={init}{arslock}{ars:#ifmedia}
     {redirect:392411283636486155}
     Timezone.Europe/Luxembourg?:
-    {la?bugs:{r?ticketid:bugticket}({params},{timestamp:02-01-2006   [03:04]})}
+    {la?bugs:{.bugid}({params},{timestamp:02-01-2006   [03:04]})}
     {embed:{type:rich}
         {title: New bug report by {/user}}
         {color:
@@ -20,11 +20,12 @@ Your bug has been recieved. The developer team will work on it.
         {field[1]|name:Date:}
             {field[1]|value:{timestamp:02-01-2006   03:04  PM}}
         {field[2]|name:Bug ID:}
-            {field[2]|value:{r?ticketid:bugticket}}}
+            {field[2]|value:{.bugid}}
+    }
     [#CONTINUE#]
 
 #ifmedia={init}{arslock}{ars:#HasRep}
-{la?bugs:{r?ticketid:bugticket}({timestamp:02-01-2006   03:04]})}
+{la?bugs:{.bugid}({timestamp:02-01-2006   03:04]})}
     **If you have media (screenshots, links to videos, crash reports, etc...) write `.bugmedia` so a channel where you can upload it is enabled to you.**
     [#CONTINUE#]
 
@@ -50,7 +51,6 @@ Your bug has been recieved. The developer team will work on it.
 
 #CountRep2={init}{ars:#instructions}{clear:10}
     Timezone.Europe/Luxembourg? 
-    {m?testers:{timestamp:02/01/2006-03:04}} := {rawid},{user},{self}
     [#CONTINUE#]
 
 #instructions={init}{arslock}
@@ -61,7 +61,7 @@ Your bug has been recieved. The developer team will work on it.
     {del}
     {redirect:402537163004051467}{readnwrite:402537163004051467}
     {user} post here the media then write `.done`
-    Media Linked to (ticket ID): {r?ticketid:bugticket}
+    Media Linked to (ticket ID): {.bugid}
     [#CONTINUE#]
 
 &.bugsolved {params}={init}
@@ -74,7 +74,7 @@ Your bug has been recieved. The developer team will work on it.
         {field[0]|value:{r?bugs:{params}--Desc}}
         {field[1]|name:Date:}
         {field[1]|value:{r?bugs:{params}--Time}}
-        {footer|text:Bug ID: {math:{r?ticketid:bugticket}-1}}
+        {footer|text:Bug ID: {math:{.bugid}-1}}
     }
     [#CONTINUE#]
 
