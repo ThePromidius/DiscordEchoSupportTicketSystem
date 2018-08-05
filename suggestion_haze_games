@@ -1,0 +1,112 @@
+&.suggestion {params}={init}{del}{msg:Your suggestion has been recieved correctly}
+    Timezone.Europe/Luxembourg? 
+    {e?profile:{rawid}-sub_sugg(+1)}
+    {m?suggestions:{r?suggestions:sug_id}--USER_ID} := {rawid}
+    {m?suggestions:{r?suggestions:sug_id}--USER_SELF} := {self}
+    {m?suggestions:{r?suggestions:sug_id}--SUG_DESC} := {params}
+    {m?suggestions:{r?suggestions:sug_id}--DATE} := {timestamp:02-01-2006   [03:04]  PM}
+    {e?suggestions:sug_id(+1)}
+    {redirect:392410132652359682}
+
+    {embed:
+        {color:#28415f}
+        {title:New suggestion by {self}}
+        {desc:{params}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM} | Suggestion ID: {r?suggestions:sug_id}}
+    }
+    {reactbot:👍 👎}
+[#CONTINUE#]
+#approvedsuggestion={init}{arslock}{redirect:392412548554555392}
+    {e?profile:{r?suggestions:{params}--USER_ID}-app_sugg(+1)}
+    {embed:
+        {color:#A0DB8E}
+        {title:A suggestion has been accepted and will be working on it!}
+        {desc:{r?suggestions:{params}--SUG_DESC}} 
+    }
+[#CONTINUE#]
+#declinesuggestion={init}{arslock}
+    {redirect:460530852338597899}
+    {split:-}
+    {embed:
+        {color:##691c1c}
+        {title:Suggestion by {r?suggestions:{/p0}--USER_SELF} rejected}
+        {field[0]|name:Bug desc:}
+        {field[0]|value:{r?suggestions:{/p0}--SUG_DESC}}
+        {field[1]|name:Reason:}
+        {field[1]|value:{/p1}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM} | Suggestion ID: {/p0}}
+    }
+
+[#CONTINUE#]
+#workingsuggestion={init}{arslock}
+    {redirect:460187113946742785}
+    {embed:
+        {color:#ff6600}
+        {title:Suggestion in progress}
+        {desc:{r?suggestions:{params}--SUG_DESC}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM} | Suggestion ID: {params}}
+    }
+
+
+[#CONTINUE#]
+&.decline {params}={init}{req:Developer}
+    use | suggestions_ideas | 392410132652359682
+    {split:_}
+    {if(ischannel):
+        /*You must only write the suggestion ID {del}*/
+        Count.{/p0}>{r?suggestions:sug_id}?:Invalid ID{del}{delme:10s}
+        String.{le?suggestions:done_sug({/p0})} == True?:Suggestion already done and integrated{del}{delme:10s}
+        String.{le?suggestions:approved_sug({/p0})} == True?:Can't decline suggestion. Already approved.{del}{delme:10s}
+        String.{le?suggestions:rejected_id({/p0})} == True?:Suggestion already rejected{del}{delme:10s}
+        ParamRegex.([0-9]_{/p1})?:{ars:#declinesuggestion}{del}{delme:10s}
+        Response.nil?:Error, use `.decline <suggestion_id>_<reason>`.{del:10s}{del}
+    } (else) {
+        You can't exec this command here, do it in <#392410132652359682> {delme:5s}
+    }
+
+[#CONTINUE#]
+#donesuggestion={init}{arslock}
+    {redirect:469893000361803776}
+{e?profile:{r?suggestions:{params}--USER_ID}-done_sugg(+1)}
+    {embed:
+        {color:#faebd7}
+        {title:Suggestion has been done and implemented:}
+        {desc:{r?suggestions:{params}--SUG_DESC}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM}}
+    }
+[#CONTINUE#]
+&.approve {params}={init}
+{req:Developer}
+    use | suggestions_ideas | 392410132652359682
+    {if(ischannel):
+        ParamRegex.[a-z]|[A-Z]?:You must only write the suggestion ID {del}{delme:10s}
+        Count.{params}>{r?suggestions:sug_id}?:Invalid ID{del}{delme:10s}
+        String.{le?suggestions:done_sug({params})} == True?:Suggestion already done and integrated.{del}{delme:10s}
+        String.{le?suggestions:approved_sug({params})} == True?:Suggestion already approved.{del}
+        Count.{params} < {r?suggestions:sug_id}?:{ars:#approvedsuggestion}{la?suggestions:aproved_sug({params})} <@{r?suggestions:{params}--USER_ID}>, your suggestion became true.{del} {delme:10s}
+        Response.nil?:It doesnt exist any suggestion with that ID.{del:10s}
+    } (else) {
+        You can't exec this command here, do it in <#392410132652359682> {delme:5s}
+    }
+[#CONTINUE#]
+&.done {params}={init}{req:Developer}
+    ParamRegex.[a-z]|[A-Z]?:You must only write the suggestion ID {del}{delme:10s}
+    Count.{params}>{r?suggestions:sug_id}?:Invalid ID{del}{delme:10s}
+    String.{le?suggestions:done_sug({params})} == True?:Suggestion already done and integrated.{del} {delme:10s}
+    Response.nil?:{ars:#donesuggestion}{la?suggestions:done_sug({params})}{del}
+
+[#CONTINUE#]
+&.working {params}={init}{req:Developer}
+    use | suggestions_ideas | 392410132652359682
+    {if(ischannel):
+        /*You must only write the suggestion ID {del}*/
+        Count.{params}>{r?suggestions:sug_id}?:Invalid ID
+        String.{le?suggestions:done_sug({params})} == True?:Suggestion already done and integrated.{del} {delme:10s}
+        String.{le?suggestions:working_sug({params})} == True?:Suggestion already work in progress. {del} {delme:10s}
+        String.{le?suggestions:rejected_id({params})} == True?:Error. Suggestion was already rejected.{del} {delme:10s}
+        String.{le?suggestions:aproved_sug({params})} == False?:Error. Suggestion has not been approved. {del} {delme:10s}
+        Count.{params}<={r?suggestions:sug_id}?:{ars:#workingsuggestion}{la?suggestions:working_sug({params})} <@{r?suggestions:{params}--USER_ID}>, your suggestion is in progress.{del}{delme:10m}
+        Response.nil?:Suggestion with that ID doesn't exist.{del:10s}{del}
+    } (else) {
+        You can't exec this command here, do it in <#392410132652359682> {delme:5s}{del}
+    }
