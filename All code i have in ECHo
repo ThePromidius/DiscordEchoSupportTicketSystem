@@ -2382,3 +2382,337 @@ Response.nil?:$3messageVerified {role:Members}{ars:#captcha2}{d?verify:{rawid}}
 [#CONTINUE#]
 
 #cmd2captcha={init}{arslock}{sleep:2m}{take:Unverified}
+
+&.suggestion {params}={init}{del}{msg:Your suggestion has been recieved correctly}
+    Timezone.Europe/Luxembourg? 
+    {e?profile:{rawid}-sub_sugg(+1)}
+    {m?suggestions:{r?suggestions:sug_id}--USER_ID} := {rawid}
+    {m?suggestions:{r?suggestions:sug_id}--USER_SELF} := {self}
+    {m?suggestions:{r?suggestions:sug_id}--SUG_DESC} := {params}
+    {m?suggestions:{r?suggestions:sug_id}--DATE} := {timestamp:02-01-2006   [03:04]  PM}
+    {e?suggestions:sug_id(+1)}
+    {redirect:392410132652359682}
+
+    {embed:
+        {color:#28415f}
+        {title:New suggestion by {self}}
+        {desc:{params}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM} | Suggestion ID: {r?suggestions:sug_id}}
+    }
+    {reactbot:👍 👎}
+[#CONTINUE#]
+#approvedsuggestion={init}{arslock}{redirect:392412548554555392}
+    {e?profile:{r?suggestions:{params}--USER_ID}-app_sugg(+1)}
+    {embed:
+        {color:#A0DB8E}
+        {title:A suggestion has been accepted and will be working on it!}
+        {desc:{r?suggestions:{params}--SUG_DESC}} 
+    }
+[#CONTINUE#]
+#declinesuggestion={init}{arslock}
+    {redirect:460530852338597899}
+    {split:-}
+    {embed:
+        {color:##691c1c}
+        {title:Suggestion by {r?suggestions:{/p0}--USER_SELF} rejected}
+        {field[0]|name:Bug desc:}
+        {field[0]|value:{r?suggestions:{/p0}--SUG_DESC}}
+        {field[1]|name:Reason:}
+        {field[1]|value:{/p1}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM} | Suggestion ID: {/p0}}
+    }
+
+[#CONTINUE#]
+#workingsuggestion={init}{arslock}
+    {redirect:460187113946742785}
+    {embed:
+        {color:#ff6600}
+        {title:Suggestion in progress}
+        {desc:{r?suggestions:{params}--SUG_DESC}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM} | Suggestion ID: {params}}
+    }
+
+
+[#CONTINUE#]
+&.decline {params}={init}{req:Developer}
+    use | suggestions_ideas | 392410132652359682
+    {split:_}
+    {if(ischannel):
+        /*You must only write the suggestion ID {del}*/
+        Count.{/p0}>{r?suggestions:sug_id}?:Invalid ID{del}{delme:10s}
+        String.{le?suggestions:done_sug({/p0})} == True?:Suggestion already done and integrated{del}{delme:10s}
+        String.{le?suggestions:approved_sug({/p0})} == True?:Can't decline suggestion. Already approved.{del}{delme:10s}
+        String.{le?suggestions:rejected_id({/p0})} == True?:Suggestion already rejected{del}{delme:10s}
+        ParamRegex.([0-9]_{/p1})?:{ars:#declinesuggestion}{del}{delme:10s}
+        Response.nil?:Error, use `.decline <suggestion_id>_<reason>`.{del:10s}{del}
+    } (else) {
+        You can't exec this command here, do it in <#392410132652359682> {delme:5s}
+    }
+
+[#CONTINUE#]
+#donesuggestion={init}{arslock}
+    {redirect:469893000361803776}
+{e?profile:{r?suggestions:{params}--USER_ID}-done_sugg(+1)}
+    {embed:
+        {color:#faebd7}
+        {title:Suggestion has been done and implemented:}
+        {desc:{r?suggestions:{params}--SUG_DESC}}
+        {footer|text:{timestamp:02-01-2006   [03:04]  PM}}
+    }
+[#CONTINUE#]
+&.approve {params}={init}
+{req:Developer}
+    use | suggestions_ideas | 392410132652359682
+    {if(ischannel):
+        ParamRegex.[a-z]|[A-Z]?:You must only write the suggestion ID {del}{delme:10s}
+        Count.{params}>{r?suggestions:sug_id}?:Invalid ID{del}{delme:10s}
+        String.{le?suggestions:done_sug({params})} == True?:Suggestion already done and integrated.{del}{delme:10s}
+        String.{le?suggestions:approved_sug({params})} == True?:Suggestion already approved.{del}
+        Count.{params} < {r?suggestions:sug_id}?:{ars:#approvedsuggestion}{la?suggestions:aproved_sug({params})} <@{r?suggestions:{params}--USER_ID}>, your suggestion became true.{del} {delme:10s}
+        Response.nil?:It doesnt exist any suggestion with that ID.{del:10s}
+    } (else) {
+        You can't exec this command here, do it in <#392410132652359682> {delme:5s}
+    }
+[#CONTINUE#]
+&.done {params}={init}{req:Developer}
+    ParamRegex.[a-z]|[A-Z]?:You must only write the suggestion ID {del}{delme:10s}
+    Count.{params}>{r?suggestions:sug_id}?:Invalid ID{del}{delme:10s}
+    String.{le?suggestions:done_sug({params})} == True?:Suggestion already done and integrated.{del} {delme:10s}
+    Response.nil?:{ars:#donesuggestion}{la?suggestions:done_sug({params})}{del}
+
+[#CONTINUE#]
+&.working {params}={init}{req:Developer}
+    use | suggestions_ideas | 392410132652359682
+    {if(ischannel):
+        /*You must only write the suggestion ID {del}*/
+        Count.{params}>{r?suggestions:sug_id}?:Invalid ID
+        String.{le?suggestions:done_sug({params})} == True?:Suggestion already done and integrated.{del} {delme:10s}
+        String.{le?suggestions:working_sug({params})} == True?:Suggestion already work in progress. {del} {delme:10s}
+        String.{le?suggestions:rejected_id({params})} == True?:Error. Suggestion was already rejected.{del} {delme:10s}
+        String.{le?suggestions:aproved_sug({params})} == False?:Error. Suggestion has not been approved. {del} {delme:10s}
+        Count.{params}<={r?suggestions:sug_id}?:{ars:#workingsuggestion}{la?suggestions:working_sug({params})} <@{r?suggestions:{params}--USER_ID}>, your suggestion is in progress.{del}{delme:10m}
+        Response.nil?:Suggestion with that ID doesn't exist.{del:10s}{del}
+    } (else) {
+        You can't exec this command here, do it in <#392410132652359682> {delme:5s}{del}
+    }
+    
+    .bugmedia={init}
+    {del}
+    {redirect:402537163004051467}{readnwrite:402537163004051467}
+    {user} post here the media then write `.done`
+    ```css
+[Media Linked to (ticket ID): {math:{r?ticketid:bugticket}-1}]```
+[#CONTINUE#]
+addRep={init}
+{arslock}{ars:#HasRep}
+{e?rep:{rawid}(+5)}
+{user}, you have been awardnered with 5+ rep for your help.{delme:5s}
+[#CONTINUE#]
+#CountRep={init}{arslock}
+Role.BUG HUNTER?:{ars:#instruction}
+Role.Tester?:{ars:#instruction}
+Response.nil?:{ars:#CountRep2}
+[#CONTINUE#]
+#PEHasRep={init}{arslock}
+    DB:rep.{rawid}?:{ars:#PEaddRep}
+    Response.nil?:{ars:#PEcreateUserRepP}
+    
+[#CONTINUE#]
+#editbugreport={init}{arslock}
+{redirect:392411283636486155}
+Timezone.Europe/Luxembourg? 
+{m?bugs:{/p0}--Desc} := {params}
+{m?bugs:{/p0}--MTime} := {timestamp:02-01-2006   [03:04]  PM}    
+{embed:{type:rich}{target:{/rawid}} 
+{title: Bug report edited by {/user}}        
+{color:#ff6600}
+    {field[0]|name:Bug description:}
+    {field[0]|value:#{params}}
+    {field[1]|name:Date:}
+        {field[1]|value:{r?bugs:{/p0}--Time}}
+    {field[2]|name:Modified:}
+        {field[2]|value:{timestamp:02-01-2006   [03:04]  PM}}
+    {field[3]|name:Bug ID:}
+        {field[3]|value:{/p0}}}
+
+[#CONTINUE#]
+HasRep={init}{arslock}
+DB:rep.{rawid}?:{ars:addRep}
+Response.nil?:{ars:createUserRepP}
+[#CONTINUE#]
+#CountRep2={init}{arslock}
+    Timezone.Europe/Luxembourg? 
+    Count.{r?rep:{rawid}} >= 150?:{role:BUG HUNTER}Congratulations to {user} who earned BUG HUNTER role! {redirect:401454332211494912}
+    Count.{r?rep:{rawid}} >= 20?:{role:Tester}Congratulations to {user} who earned Tester role!  {redirect:401454332211494912}
+    Response.nil?: You need {math:20-{r?rep:{rawid}}}{delme:10s} points more to earn Tester role{ars:#instructions}
+[#CONTINUE#]
+#createUserRepP={init}{arslock}{ars:#addRep}
+    {m?rep:{rawid}} := 0
+    
+[#CONTINUE#]
+#bugsolved={init}
+{redirect:443791685064065025}
+Timezone.Europe/Madrid? 
+    {msg:Bug with ID: {params} has been solved}
+    {embed:{type:rich}
+        {title: New bug solved:}
+        {color:#5BFF33}
+        {field[0]|name:Bug description:}
+        {field[0]|value:{r?bugs:{params}--Desc}}
+        {field[1]|name:Posted:}
+        {field[1]|value:{r?bugs:{params}--Time}}
+        {field[2]|name:Solved:}
+        {field[2]|value:{timestamp:02-01-2006   [03:04]  PM MST}}
+        {footer|text:Bug ID: {params}}
+    }
+[#CONTINUE#]
+#PECountRep2={init}{ars:#PEinstructions}{clear:10}
+    Timezone.Europe/Luxembourg?
+    
+[#CONTINUE#]
+#addRep={init}{arslock}{ars:#CountRep}
+    {e?rep:{rawid}(+5)}
+    {user}, you have been awardnered with 5+ rep for your help.{delme:5s}
+    
+[#CONTINUE#]
+&.bugedit {params}={init}
+{split: }
+Count.{r?ticketid:bugticket} <= {/p0}?:It doesnt exist any bug record with that ID.{delme:5s}
+ContentRegex.[0-9](\s){/p1}?:{ars:#editbug}
+Response.nil?:{clean}Edit not formulated correctly use `.bugedit <id> <bug info (it overwrites)>`
+
+
+[#CONTINUE#]
+#PECountRep={init}{arslock}
+    Timezone.Europe/Luxembourg? 
+    Count.{r?rep:{rawid}} >= 20?:{role:Tester}{ars:#PECountRep2}
+    Response.nil?: You need {math:20-{r?rep:{rawid}}}{delme:10s} points more to earn Tester role{ars:#PEinstructions}
+    
+[#CONTINUE#]
+&.bugreport {params}={init}{ars:#bugreport}
+{e?ticketid:bugticket(+1)}
+Your bug has been recieved. The developer team will work on it.
+{delme:20s}{del:5s}
+[#CONTINUE#]
+&.resetrep {params}={init}
+    {req:ADM}{d?rep:{params}}
+    
+[#CONTINUE#]
+#PEbugreport={init}{arslock}{ars:#PEifmedia}
+    {redirect:392411283636486155}
+    Timezone.Europe/Luxembourg? 
+    {m?pebugs:{r?ticketid:pebugticket}--Desc} := {params}
+    {m?pebugs:{r?ticketid:pebugticket}--Time} := {timestamp:02-01-2006   [03:04]  PM}    
+    {embed:{type:rich}        
+        {title: New bug Pocket Edition report by {/user}}        
+        {color:#ff6600}
+                {field[0]|name:Bug description:}
+                    {field[0]|value:{params}}
+                {field[1]|name:Date:}
+                    {field[1]|value:{timestamp:02-01-2006   [03:04]  PM}}
+                {field[2]|name:Bug ID:}
+                    {field[2]|value:{r?ticketid:pebugticket}}
+    }
+    
+[#CONTINUE#]
+#editbug={init}{arslock}
+String.{r?ticketid:bugticket}--Id} == {rawid}?: You can only edit your own reports
+Response.nil?:{ars:#editbugreport}
+
+[#CONTINUE#]
+#PEbugsolved={init}{redirect:377058360052416523}
+     Timezone.Europe/Luxembourg? 
+    {msg:Bug with ID: {params} has been solved}
+    {d?activepebugs:{params}--Desc}
+    {d?activebufs:{params}--Time}
+    {embed:{type:rich}
+        {title: New Pocket Edition bug solved:}
+        {color:#5BFF33}
+        {field[0]|name:Bug description:}
+        {field[0]|value:{r?pebugs:{params}--Desc}}
+        {field[1]|name:Posted:}
+        {field[1]|value:{r?pebugs:{params}--Time}}
+        {field[2]|name:Solved:}
+        {field[2]|value:{timestamp:02-01-2006   [03:04]  PM}}
+        {footer|text:Bug ID: {params}}
+    }
+    
+[#CONTINUE#]
+#PEcreateUserRepP={init}{arslock}{ars:#PEaddRep}
+    {m?rep:{rawid}} := 0
+    
+[#CONTINUE#]
+#bugreport={init}{arslock}{ars:#ifmedia}
+    {redirect:392411283636486155}
+    Timezone.Europe/Luxembourg? 
+    {m?bugs:{r?ticketid:bugticket}--Desc} := {params}
+    {m?bugs:{r?ticketid:bugticket}--Time} := {timestamp:02-01-2006   [03:04]  PM}    
+{embed:{type:rich}       {target:{/rawid}} 
+{title: New bug report by {/user}}        
+{color:#ff6600}
+        {field[0]|name:Bug description:}
+        {field[0]|value:{params}}
+        {field[1]|name:Date:}
+            {field[1]|value:{timestamp:02-01-2006   [03:04]  PM}}
+        {field[2]|name:Bug ID:}
+            {field[2]|value:{r?ticketid:bugticket}}
+[#CONTINUE#]
+#ifmedia={init}{arslock}{ars:#HasRep}{del:30s}
+    **If you have media (screenshots, links to videos, crash reports, etc...) write `.bugmedia` so a channel where you can upload it is enabled to you.**
+[#CONTINUE#]
+&.bugsolved {params}={init}
+{del}{req:Developer}
+String.{le?bugs:solved({params})} == False?:{ars:#bugsolved}{la?bugs:solved({params})}
+Response.nil?:Bug already solved.{delme:10s}
+[#CONTINUE#]
+&.pebugsolved {params}={init}{del}{req:Developer}
+    String.{le?pepebugs:solved({params})} == False?:{ars:#PEbugsolved}{la?pebugs:solved({params})}
+    Response.nil?:Bug already solved.{delbot:10s}
+    
+[#CONTINUE#]
+#HasRep={init}{arslock}
+    DB:rep.{rawid}?:{ars:#addRep}
+    Response.nil?:{ars:#createUserRepP}
+    
+[#CONTINUE#]
+#PEaddRep={init}
+    {arslock}{ars:#PEHasRep}
+    {e?rep:{rawid}(+5)}
+    {user}, you have been awardnered with 5+ rep for your help.{delme:5s}
+[#CONTINUE#]
+createUserRepP={init}
+{arslock}
+{m?rep:{rawid}} := 0
+{ars:addRep}
+[#CONTINUE#]
+&.profile={init}{embed:
+{title:{user} profile}
+{field[0]|name:Bugs reported:}
+{field[0]|value:{math:{r?rep:{rawid}}/5}}
+
+{field[1]|name:Suggestions:}
+{field[1]|value:
+Submitted:
+{r?profile:{rawid}-sub_sugg}
+Approved:
+{r?profile:{rawid}-app_sugg}
+Completed:
+{r?profile:{rawid}-done_sugg}}
+
+
+}
+[#CONTINUE#]
+.resetticketid={init}
+    {req:ADM}
+    {m?ticketid:bugticket} := 0
+    
+[#CONTINUE#]
+#PEifmedia={init}{arslock}{ars:#HPEasRep}{del:30s}
+    **If you have media (screenshots, links to videos, crash reports, etc...) write `.bugmedia` so a channel where you can upload it is enabled to you.**
+
+[#CONTINUE#]
+&.PEbugreport {params}={init}{ars:#PEbugreport}
+    {e?ticketid:pebugticket(+1)}
+    Your bug has been recieved. The developer team will work on it.
+    {delme:20s}{del:5s}
+    
