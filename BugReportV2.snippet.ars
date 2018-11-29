@@ -5,12 +5,12 @@ Your bug has been recieved. The developer team will work on it.
 
 [#CONTINUE#]
 #bugreport1={init}{arslock}{ars:#bugreport2}
-    {m?bugs:{.bugid}} :=
+    {m?bugs:{r?ticketid:bugticket}} :=
     [#CONTINUE#]
 #bugreport2={init}{arslock}{ars:#ifmedia}
     {redirect:392411283636486155}
     Timezone.Europe/Luxembourg?:
-    {la?bugs:{.bugid}({params},{timestamp:02-01-2006   [03:04]})}
+    {la?bugs:{r?ticketid:bugticket}({params},{timestamp:02-01-2006   [03:04]})}
     {embed:{type:rich}
         {title: New bug report by {/user}}
         {color:
@@ -20,12 +20,12 @@ Your bug has been recieved. The developer team will work on it.
         {field[1]|name:Date:}
             {field[1]|value:{timestamp:02-01-2006   03:04  PM}}
         {field[2]|name:Bug ID:}
-            {field[2]|value:{.bugid}}
+            {field[2]|value:{r?ticketid:bugticket}}
     }
     [#CONTINUE#]
 
 #ifmedia={init}{arslock}{ars:#HasRep}
-{la?bugs:{.bugid}({timestamp:02-01-2006   03:04]})}
+{la?bugs:{r?ticketid:bugticket}({timestamp:02-01-2006   03:04]})}
     **If you have media (screenshots, links to videos, crash reports, etc...) write `.bugmedia` so a channel where you can upload it is enabled to you.**
     [#CONTINUE#]
 
@@ -74,7 +74,7 @@ Your bug has been recieved. The developer team will work on it.
         {field[0]|value:{r?bugs:{params}--Desc}}
         {field[1]|name:Date:}
         {field[1]|value:{r?bugs:{params}--Time}}
-        {footer|text:Bug ID: {math:{.bugid}-1}}
+        {footer|text:Bug ID: {math:{r?ticketid:bugticket}-1}}
     }
     [#CONTINUE#]
 
